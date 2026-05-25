@@ -130,6 +130,7 @@ model StagingFacilityRecord {
   parkGolfVerdict        String                       // ParkGolfVerdict ("confirmed", "candidate", "hidden")
   duplicateStatus        String                       // DuplicateStatus ("exact", "probable", "ambiguous")
   reservations           StagingReservationRecord[]
+  decision               StagingDecision?
 }
 
 /// Booking method candidates linked to staging records
@@ -149,9 +150,10 @@ model StagingReservationRecord {
 /// Temporary decision during pipeline review
 /// 파이프라인 검토 단계에서 생성되는 임시 의사결정
 model StagingDecision {
-  id               String   @id @default(cuid())
+  id               String                @id @default(cuid())
   runId            String
-  facilityRecordId String   @unique
+  facilityRecordId String                @unique
+  facilityRecord   StagingFacilityRecord @relation(fields: [facilityRecordId], references: [id], onDelete: Cascade)
   decision         String   // ReviewDecision ("confirmed", "candidate", "hidden")
   reason           String
   reviewedAt       DateTime @default(now())

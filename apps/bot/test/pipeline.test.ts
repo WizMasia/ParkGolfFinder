@@ -1,0 +1,79 @@
+import { describe, expect, it, vi } from "vitest";
+import { executePipeline } from "../src/pipeline/run.js";
+
+// Mock database layer for pipeline integration testing
+// 파이프라인 통합 테스트를 위해 데이터베이스 레이어를 모킹합니다.
+vi.mock("@parkgolf/db", () => {
+  return {
+    prisma: {
+      stagingFacilityRecord: {
+        findMany: vi.fn().mockResolvedValue([
+          {
+            id: "rec123",
+            runId: "run-123",
+            name: "잠실 파크골프장 (임시)",
+            address: "서울특별시 송파구",
+            parkGolfVerdict: "confirmed",
+            contentHash: "hash123",
+            reservations: [],
+          },
+        ]),
+        update: vi.fn().mockResolvedValue({}),
+      },
+      stagingDecision: {
+        findMany: vi.fn().mockResolvedValue([
+          {
+            id: "dec123",
+            decision: "confirmed",
+            facilityRecord: {
+              id: "rec123",
+              name: "잠실 파크골프장",
+              address: "서울특별시 송파구",
+              province: "서울",
+              district: "송파구",
+              regionKey: "capital",
+              operatorName: "송파구청",
+              phone: "02-123",
+              lat: 37.5,
+              lng: 126.9,
+              rawText: "파크골프",
+              reservations: [],
+            },
+          },
+        ]),
+      },
+      facility: {
+        upsert: vi.fn().mockResolvedValue({ id: "fac123" }),
+      },
+      facilityPricing: {
+        upsert: vi.fn().mockResolvedValue({}),
+      },
+      reservationInfo: {
+        upsert: vi.fn().mockResolvedValue({ id: "res123" }),
+      },
+      reservationMethod: {
+        deleteMany: vi.fn().mockResolvedValue({}),
+        create: vi.fn().mockResolvedValue({}),
+      },
+      facilitySnapshot: {
+        create: vi.fn().mockResolvedValue({}),
+      },
+    },
+    createStagingRun: vi.fn().mockResolvedValue({ id: "mock-run-id" }),
+    finishStagingRun: vi.fn().mockResolvedValue({}),
+    insertStagingSource: vi.fn().mockResolvedValue({ id: "mock-source-id" }),
+    insertFacilityRecord: vi.fn().mockResolvedValue({ id: "rec123" }),
+    insertReservationRecord: vi.fn().mockResolvedValue({}),
+    insertDuplicateCluster: vi.fn().mockResolvedValue({}),
+    insertDecision: vi.fn().mockResolvedValue({}),
+    deleteExpiredStagingData: vi.fn().mockResolvedValue({}),
+  };
+});
+
+describe("Pipeline E2E Orchestration / 파이프라인 E2E 통합 오케스트레이션", () => {
+  it("should run full pipeline sequence without throwing errors / 전체 파이프라인 단계를 에러 없이 무사히 완료해야 합니다", async () => {
+    process.env.DATABASE_URL = "postgresql://localhost";
+
+    await expect(executePipeline("official")).resolves.not.toThrow();
+  });
+});
