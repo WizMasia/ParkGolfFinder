@@ -6,6 +6,9 @@
     "packages/*"
   ],
   "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "build:web": "npm --workspace apps/web run build",
+    "start:web": "npm --workspace apps/web run start",
     "bot:run": "npm --workspace apps/bot run run",
     "bot:fetch": "npm --workspace apps/bot run fetch",
     "bot:stage": "npm --workspace apps/bot run stage",
