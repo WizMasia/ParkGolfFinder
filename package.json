@@ -1,0 +1,20 @@
+{
+  "name": "parkgolffinder",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "bot:run": "npm --workspace apps/bot run run",
+    "bot:fetch": "npm --workspace apps/bot run fetch",
+    "bot:stage": "npm --workspace apps/bot run stage",
+    "bot:normalize": "npm --workspace apps/bot run normalize",
+    "bot:review": "npm --workspace apps/bot run review",
+    "bot:promote": "npm --workspace apps/bot run promote",
+    "bot:cleanup": "npm --workspace apps/bot run cleanup",
+    "lint": "npm --workspaces run lint",
+    "test": "npm --workspaces run test",
+    "typecheck": "npm --workspaces run typecheck"
+  }
+}

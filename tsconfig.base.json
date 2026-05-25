@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@parkgolf/shared": ["packages/shared/src/index.ts"],
+      "@parkgolf/shared/*": ["packages/shared/src/*"],
+      "@parkgolf/db": ["packages/db/src/index.ts"],
+      "@parkgolf/db/*": ["packages/db/src/*"]
+    }
+  }
+}
