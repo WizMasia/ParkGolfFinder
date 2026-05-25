@@ -47,6 +47,8 @@ export interface FacilitySummary {
   facilityType: FacilityType;
   status: FacilityStatus;
   ownership: Ownership;
+  operatorName: string | null;
+  phone?: string | null;
   lat: number;
   lng: number;
   baseFeeText: string;
