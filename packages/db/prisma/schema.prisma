@@ -1,0 +1,169 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// Facility details in production table
+/// 프로덕션 시설 테이블 상세
+model Facility {
+  id            String             @id @default(cuid())
+  name          String
+  address       String
+  province      String?
+  district      String?
+  regionKey     String
+  facilityType  String             // e.g. "outdoor", "indoor" / 예: "outdoor", "indoor"
+  status        String             // e.g. "active", "hidden" / 예: "active", "hidden"
+  ownership     String             // e.g. "public", "private" / 예: "public", "private"
+  operatorName  String
+  phone         String?
+  lat           Float
+  lng           Float
+  sourceName    String
+  sourceUrl     String?
+  lastCheckedAt DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  pricing       FacilityPricing?
+  reservation   ReservationInfo?
+  snapshots     FacilitySnapshot[]
+}
+
+/// Facility pricing structure
+/// 시설 요금 체계
+model FacilityPricing {
+  id                String   @id @default(cuid())
+  facilityId        String   @unique
+  facility          Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  baseFeeText       String
+  concessionFeeText String?
+  feeType           String   // e.g. "free", "paid", "partial", "inquiry" / 예: "free", "paid", "partial", "inquiry"
+}
+
+/// Reservation details for the facility
+/// 시설 예약 정보
+model ReservationInfo {
+  id         String              @id @default(cuid())
+  facilityId String              @unique
+  facility   Facility            @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  summary    String              // Summary text joined by priority / 우선순위 요약 텍스트
+  methods    ReservationMethod[]
+}
+
+/// Booking methods available
+/// 사용 가능한 예약 수단
+model ReservationMethod {
+  id                String          @id @default(cuid())
+  reservationInfoId String
+  reservationInfo   ReservationInfo @relation(fields: [reservationInfoId], references: [id], onDelete: Cascade)
+  methodType        String          // e.g. "phone", "internet_first_come", "internet_lottery", "visit", "none"
+  methodText        String
+  priority          Int
+  ruleText          String?
+  url               String?
+  notes             String?
+}
+
+/// Raw data imports/history
+/// 원시 수집 데이터 유입 기록
+model FacilitySnapshot {
+  id         String    @id @default(cuid())
+  facilityId String?
+  facility   Facility? @relation(fields: [facilityId], references: [id], onDelete: SetNull)
+  rawPayload String
+  createdAt  DateTime  @default(now())
+}
+
+// ============================================
+// Staging Models for the Collection Bot
+// 데이터 수집 봇을 위한 Staging 모델들
+// ============================================
+
+/// Tracks a single bot pipeline execution run
+/// 단일 봇 파이프라인 실행 단계를 추적합니다.
+model StagingRun {
+  id        String    @id @default(cuid())
+  scope     String    // "national" or regional / "national" 또는 특정 지역
+  status    String    // "running", "completed", "failed"
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  statsJson Json?
+}
+
+/// Tracks raw metadata of external resource source
+/// 외부 리소스 소스의 원시 메타데이터를 추적합니다.
+model StagingSource {
+  id          String   @id @default(cuid())
+  runId       String
+  sourceName  String
+  sourceUrl   String
+  sourceKind  String   // SourceKind ("official", "mcst", "parkgolf24", etc.)
+  contentHash String
+  fetchedAt   DateTime @default(now())
+}
+
+/// Raw candidate record loaded from external sources
+/// 외부 소스에서 가져온 시설 후보의 원시 레코드
+model StagingFacilityRecord {
+  id                     String                       @id @default(cuid())
+  runId                  String
+  sourceId               String
+  sourceKey              String
+  name                   String
+  address                String
+  province               String?
+  district               String?
+  regionKey              String?
+  operatorName           String?
+  phone                  String?
+  lat                    Float?
+  lng                    Float?
+  rawText                String
+  normalizedName         String
+  normalizedAddress      String
+  normalizedOperatorName String?
+  contentHash            String
+  parkGolfVerdict        String                       // ParkGolfVerdict ("confirmed", "candidate", "hidden")
+  duplicateStatus        String                       // DuplicateStatus ("exact", "probable", "ambiguous")
+  reservations           StagingReservationRecord[]
+}
+
+/// Booking method candidates linked to staging records
+/// Staging 레코드에 연결된 예약 방법 후보
+model StagingReservationRecord {
+  id               String                 @id @default(cuid())
+  facilityRecordId String
+  facilityRecord   StagingFacilityRecord  @relation(fields: [facilityRecordId], references: [id], onDelete: Cascade)
+  methodType       String
+  methodText       String
+  priority         Int
+  ruleText         String?
+  url              String?
+  notes            String?
+}
+
+/// Temporary decision during pipeline review
+/// 파이프라인 검토 단계에서 생성되는 임시 의사결정
+model StagingDecision {
+  id               String   @id @default(cuid())
+  runId            String
+  facilityRecordId String   @unique
+  decision         String   // ReviewDecision ("confirmed", "candidate", "hidden")
+  reason           String
+  reviewedAt       DateTime @default(now())
+}
+
+/// Temporary duplicate grouping within run
+/// 실행 내부에서 생성되는 임시 중복 그룹화
+model StagingDuplicateCluster {
+  id              String   @id @default(cuid())
+  runId           String
+  duplicateStatus String
+  canonicalKey    String
+  memberKeys      Json     // Array of staging record IDs
+  reason          String
+}

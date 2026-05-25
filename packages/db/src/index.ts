@@ -1,3 +1,6 @@
-// Empty file for workspace resolution. Actual implementation in Task 3.
-// 작업 공간(workspace) 해결을 위한 빈 파일입니다. 실제 구현은 Task 3에서 진행됩니다.
-export {};
+/**
+ * Export database client and staging repository helpers.
+ * 데이터베이스 클라이언트 및 스테이징 레포지토리 헬퍼를 수출합니다.
+ */
+export * from "./client.js";
+export * from "./staging-repository.js";
