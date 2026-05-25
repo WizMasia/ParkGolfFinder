@@ -1,0 +1,21 @@
+{
+  "name": "parkgolffinder",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "build:web": "npm --workspace apps/web run build",
+    "dev:db": "npm --workspace packages/db run prisma:studio",
+    "lint": "npm --workspaces run lint",
+    "test": "npm --workspaces run test",
+    "typecheck": "npm --workspaces run typecheck"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.0.0",
+    "prettier": "^3.0.0"
+  }
+}

@@ -1,0 +1,151 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-alt: #f8fafc;
+  --border: #dbe3ee;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: radial-gradient(circle at top, #ffffff 0, var(--bg) 58%);
+  color: var(--text);
+  font-family:
+    Inter, "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+.app-shell {
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 48px 20px 64px;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: 1.1;
+}
+
+.lede {
+  margin: 12px 0 0;
+  max-width: 52rem;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.panel-grid {
+  display: grid;
+  gap: 20px;
+}
+
+@media (min-width: 960px) {
+  .panel-grid {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  }
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  backdrop-filter: blur(10px);
+}
+
+.panel-heading h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.panel-heading p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.925rem;
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.placeholder-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.placeholder-row span,
+.badge {
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: #1d4ed8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 8px 12px;
+}
+
+.placeholder-card,
+.result-card,
+.detail-card {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface-alt);
+  padding: 18px;
+}
+
+.placeholder-card strong,
+.result-card strong,
+.detail-card strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.placeholder-card p,
+.result-card p,
+.detail-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.result-card {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
