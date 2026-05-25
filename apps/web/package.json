@@ -11,20 +11,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@parkgolf/db": "*",
+    "@parkgolf/shared": "*",
     "next": "^15.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@parkgolf/shared": "*",
-    "@parkgolf/db": "*"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
     "@types/node": "^20.11.24",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "tailwindcss": "^3.4.1",
-    "postcss": "^8.4.35",
     "autoprefixer": "^10.4.18",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
     "vitest": "^1.3.1"
   }
 }

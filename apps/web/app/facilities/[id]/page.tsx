@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ReservationMethodList } from "../../../components/reservation-method-list";
 import FacilityMap from "../../../components/facility-map";
+import { MOCK_FACILITIES } from "../../../lib/mock-data";
 
 interface FacilityDetailPageProps {
   params: Promise<{ id: string }>;
@@ -14,7 +15,16 @@ interface FacilityDetailPageProps {
  */
 export default async function FacilityDetailPage({ params }: FacilityDetailPageProps) {
   const { id } = await params;
-  const facility = await findFacilityById(id);
+  let facility: any = null;
+  try {
+    facility = await findFacilityById(id);
+  } catch (error) {
+    console.warn("Database query failed, falling back to mock data / 데이터베이스 조회 실패, 모의 데이터로 대체합니다:", error);
+  }
+
+  if (!facility) {
+    facility = MOCK_FACILITIES.find((f) => f.id === id) || null;
+  }
 
   if (!facility) {
     notFound();

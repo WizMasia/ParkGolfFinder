@@ -16,8 +16,11 @@
     "bot:review": "npm --workspace apps/bot run review",
     "bot:promote": "npm --workspace apps/bot run promote",
     "bot:cleanup": "npm --workspace apps/bot run cleanup",
-    "lint": "npm --workspaces run lint",
+    "lint": "npm --workspace apps/web run lint",
     "test": "npm --workspaces run test",
     "typecheck": "npm --workspaces run typecheck"
+  },
+  "prisma": {
+    "seed": "tsx packages/db/prisma/seed.ts"
   }
 }

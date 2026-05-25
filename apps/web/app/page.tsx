@@ -1,8 +1,46 @@
+import { findFacilitiesByQuery } from "@parkgolf/db";
+import { FacilitySearchUi } from "../components/facility-search-ui";
+import { MOCK_FACILITIES } from "../lib/mock-data";
+import { FacilitySummary } from "@parkgolf/shared";
+
 /**
- * Root Home Page of the ParkGolfFinder Web Application
- * ParkGolfFinder 웹 애플리케이션의 루트 홈 페이지
+ * Root Home Page of the ParkGolfFinder Web Application.
+ * ParkGolfFinder 웹 애플리케이션의 루트 홈 페이지입니다.
  */
-export default function HomePage() {
+export default async function HomePage() {
+  let dbFacilities: any[] = [];
+  try {
+    dbFacilities = await findFacilitiesByQuery("");
+  } catch (error) {
+    console.warn(
+      "Database connection failed, falling back to mock data / 데이터베이스 연결 실패, 모의 데이터로 대체합니다:",
+      error
+    );
+  }
+
+  // Map database records to FacilitySummary format
+  // 데이터베이스 레코드를 FacilitySummary 포맷으로 변환합니다.
+  const mappedFacilities: FacilitySummary[] =
+    dbFacilities.length > 0
+      ? dbFacilities.map((f: any) => ({
+          id: f.id,
+          name: f.name,
+          address: f.address,
+          province: f.province,
+          district: f.district,
+          regionKey: f.regionKey,
+          facilityType: f.facilityType as any,
+          status: f.status as any,
+          ownership: f.ownership as any,
+          operatorName: f.operatorName,
+          phone: f.phone,
+          lat: f.lat,
+          lng: f.lng,
+          baseFeeText: f.pricing?.baseFeeText || "정보 없음 / No Info",
+          concessionFeeText: f.pricing?.concessionFeeText || null,
+        }))
+      : (MOCK_FACILITIES as any[]);
+
   return (
     <main className="mx-auto max-w-6xl p-6 md:p-12">
       <header className="mb-12 text-center md:text-left">
@@ -17,44 +55,8 @@ export default function HomePage() {
         </p>
       </header>
 
-      <section className="grid gap-8 lg:grid-cols-[340px_1fr]">
-        {/* Left column - Filter parameters */}
-        {/* 왼쪽 열 - 필터 매개변수 */}
-        <aside className="rounded-2xl border border-slate-800 bg-slate-900/50 backdrop-blur-xl p-6 shadow-xl">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            검색 및 필터 / Search & Filter
-          </h2>
-          <div className="space-y-4">
-            <div className="h-10 bg-slate-800/40 rounded-lg animate-pulse"></div>
-            <div className="h-24 bg-slate-800/40 rounded-lg animate-pulse"></div>
-            <div className="h-12 bg-slate-800/40 rounded-lg animate-pulse"></div>
-          </div>
-        </aside>
-
-        {/* Right column - Main list area */}
-        {/* 오른쪽 열 - 메인 시설 목록 영역 */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/30 backdrop-blur-xl p-6 shadow-xl min-h-[400px] flex flex-col justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              시설 목록 / Facilities List
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="h-32 bg-slate-800/20 rounded-xl border border-slate-800/50 p-4 flex flex-col justify-between">
-                <div className="w-1/2 h-4 bg-slate-800/50 rounded animate-pulse"></div>
-                <div className="w-3/4 h-3 bg-slate-800/50 rounded animate-pulse"></div>
-              </div>
-              <div className="h-32 bg-slate-800/20 rounded-xl border border-slate-800/50 p-4 flex flex-col justify-between">
-                <div className="w-1/3 h-4 bg-slate-800/50 rounded animate-pulse"></div>
-                <div className="w-2/3 h-3 bg-slate-800/50 rounded animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-          <footer className="text-center text-xs text-slate-600 mt-12">
-            © 2026 ParkGolfFinder. All rights reserved.
-          </footer>
-        </div>
+      <section>
+        <FacilitySearchUi initialFacilities={mappedFacilities} />
       </section>
     </main>
   );
