@@ -1,5 +1,5 @@
 import { FacilitySummary, FeeType, haversineKm, REGION_GROUPS } from "@parkgolf/shared";
-import { SEOUL_CITY_HALL } from "./seoul-fallback.js";
+import { SEOUL_CITY_HALL } from "./seoul-fallback";
 
 /**
  * Interface parameter configuration for rankFacilities

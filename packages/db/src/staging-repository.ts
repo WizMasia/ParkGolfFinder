@@ -1,4 +1,4 @@
-import { prisma } from "./client.js";
+import { prisma } from "./client";
 
 /**
  * Creates a new staging run record

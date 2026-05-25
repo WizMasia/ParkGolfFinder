@@ -1,4 +1,4 @@
-import { prisma } from "./client.js";
+import { prisma } from "./client";
 
 /**
  * Searches facilities matching a text query in name, address, or operatorName.
