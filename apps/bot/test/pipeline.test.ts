@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { executePipeline } from "../src/pipeline/run.js";
 
 // Mock database layer for pipeline integration testing
@@ -16,6 +16,8 @@ vi.mock("@parkgolf/db", () => {
             parkGolfVerdict: "confirmed",
             contentHash: "hash123",
             reservations: [],
+            lat: 37.5,
+            lng: 126.9,
           },
         ]),
         update: vi.fn().mockResolvedValue({}),
@@ -71,9 +73,33 @@ vi.mock("@parkgolf/db", () => {
 });
 
 describe("Pipeline E2E Orchestration / 파이프라인 E2E 통합 오케스트레이션", () => {
-  it("should run full pipeline sequence without throwing errors / 전체 파이프라인 단계를 에러 없이 무사히 완료해야 합니다", async () => {
-    process.env.DATABASE_URL = "postgresql://localhost";
+  beforeEach(() => {
+    vi.stubEnv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/parkgolffinder");
+  });
 
-    await expect(executePipeline("official")).resolves.not.toThrow();
+  it("should run full pipeline sequence without throwing errors / 전체 파이프라인 단계를 에러 없이 무사히 완료해야 합니다", async () => {
+    const mockResponse = {
+      currentCount: 1,
+      matchCount: 1,
+      totalCount: 1,
+      data: [
+        {
+          "시 설 명": "여의도한강 파크골프장",
+          "위 치": "서울특별시 영등포구 여의도동 1",
+          "운영기관": "영등포구청",
+          "홀수": "18홀",
+          "규 모": "7700㎡",
+        },
+      ],
+    };
+
+    const globalFetch = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    } as Response);
+
+    await expect(executePipeline("seoul")).resolves.not.toThrow();
+
+    globalFetch.mockRestore();
   });
 });

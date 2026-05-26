@@ -41,6 +41,26 @@ describe("isParkGolfVenue / 파크골프장 판단 판별기", () => {
       })
     ).toBe(false);
   });
+
+  it("should allow screen park golf and indoor park golf / 스크린 파크골프 및 실내 파크골프장은 허용해야 합니다", () => {
+    expect(
+      isParkGolfVenue({
+        name: "강남실내파크골프장",
+        rawText: "실내파크골프 연습 시설",
+        sourceName: "kakao",
+        sourceUrl: "https://example.com",
+      })
+    ).toBe(true);
+
+    expect(
+      isParkGolfVenue({
+        name: "동구 스크린 파크골프",
+        rawText: "스크린 파크골프 18홀 완비",
+        sourceName: "kakao",
+        sourceUrl: "https://example.com",
+      })
+    ).toBe(true);
+  });
 });
 
 describe("clusterDuplicates / 중복 클러스터링", () => {

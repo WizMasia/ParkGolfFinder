@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { normalizeName } from "../src/classification/normalize-name.js";
-import { normalizeAddress, parseAddressRegion } from "../src/classification/normalize-address.js";
+import { normalizeAddress, parseAddressRegion, normalizeAddressAndRegion } from "../src/classification/normalize-address.js";
 import { runNormalizePipeline } from "../src/pipeline/normalize.js";
+
+vi.stubEnv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/parkgolffinder");
 
 // Mock database updates
 // 데이터베이스 업데이트 메서드를 모킹합니다.
@@ -45,6 +47,47 @@ describe("Address Normalization / 주소 정제 및 파싱", () => {
 
   it("should collapse whitespace in address / 주소 공백이 완전히 압축되어야 합니다", () => {
     expect(normalizeAddress("서울시  송파구, 잠실동")).toBe("서울시송파구잠실동");
+  });
+
+  it("should fallback to local regex when Juso key is not present / Juso 키가 없으면 로컬 파서로 Fallback 해야 합니다", async () => {
+    vi.stubEnv("JUSO_CONFIRM_KEY", "");
+    const result = await normalizeAddressAndRegion("강원특별자치도 원주시", "TestAgent");
+    expect(result.standardizedAddress).toBeNull();
+    expect(result.province).toBe("강원");
+    expect(result.district).toBe("원주시");
+  });
+
+  it("should return standardized address on successful Juso API fetch / Juso API 호출 성공 시 표준 주소를 반환해야 합니다", async () => {
+    vi.stubEnv("JUSO_CONFIRM_KEY", "mock-juso-key");
+
+    const mockResponse = {
+      results: {
+        common: {
+          errorCode: "0",
+          errorMessage: "정상",
+        },
+        juso: [
+          {
+            roadAddrPart1: "서울특별시 송파구 올림픽로 326",
+            siNm: "서울특별시",
+            sggNm: "송파구",
+          },
+        ],
+      },
+    };
+
+    const globalFetch = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    } as Response);
+
+    const result = await normalizeAddressAndRegion("서울 송파구 올림픽로 326", "TestAgent");
+    expect(globalFetch).toHaveBeenCalled();
+    expect(result.standardizedAddress).toBe("서울특별시 송파구 올림픽로 326");
+    expect(result.province).toBe("서울");
+    expect(result.district).toBe("송파구");
+
+    globalFetch.mockRestore();
   });
 });
 

@@ -1,3 +1,5 @@
+import { haversineKm } from "./distance";
+
 /**
  * Data source types
  * 데이터 소스 종류
@@ -68,6 +70,23 @@ export interface ReviewVerdict {
 }
 
 /**
+ * Helper to get the weight of a candidate based on source authority.
+ * 데이터 신뢰도(가중치)에 따라 소스 권위 점수를 반환합니다.
+ */
+export function getSourceWeight(candidate: NormalizedFacilityCandidate): number {
+  if (candidate.sourceKind === "official" || candidate.sourceName === "official") {
+    return 3;
+  }
+  if (candidate.sourceName === "eshare-portal" || candidate.sourceKind === "mcst") {
+    return 2;
+  }
+  if (candidate.sourceKind === "kakao") {
+    return 1;
+  }
+  return 0;
+}
+
+/**
  * Checks if the venue is a park golf venue based on search terms.
  * 검색어 기반으로 해당 시설이 파크골프장인지 검증합니다.
  */
@@ -80,9 +99,23 @@ export function isParkGolfVenue(input: {
   const name = input.name;
   const rawText = input.rawText;
 
-  // Screening out screen golf or ordinary golf clubs
-  // 스크린 골프 및 일반 골프장은 파크골프장에서 제외합니다.
-  if (name.includes("스크린골프") || rawText.includes("스크린골프")) {
+  // Screen park golf (indoor) should be allowed while generic screen golf is excluded.
+  // 일반 스크린골프는 제외하지만, 실내/스크린 파크골프는 수집을 허용합니다.
+  const isScreenParkGolf =
+    name.includes("스크린파크") || rawText.includes("스크린파크") ||
+    name.includes("스크린 파크") || rawText.includes("스크린 파크") ||
+    name.includes("실내파크") || rawText.includes("실내파크") ||
+    name.includes("실내 파크") || rawText.includes("실내 파크");
+
+  // Screening out screen golf, practice ranges, and other normal golf clubs
+  // 스크린 골프, 연습장, 아카데미 및 일반 골프장은 파크골프장에서 제외합니다. (스크린 파크골프는 예외)
+  const hasExclusion =
+    (!isScreenParkGolf && (name.includes("스크린") || rawText.includes("스크린"))) ||
+    name.includes("연습장") ||
+    name.includes("인도어") ||
+    name.includes("아카데미");
+
+  if (hasExclusion) {
     return false;
   }
 
@@ -92,7 +125,9 @@ export function isParkGolfVenue(input: {
     name.includes("파크골프") ||
     rawText.includes("파크골프") ||
     name.toLowerCase().includes("park golf") ||
-    rawText.toLowerCase().includes("park golf");
+    name.toLowerCase().includes("parkgolf") ||
+    rawText.toLowerCase().includes("park golf") ||
+    rawText.toLowerCase().includes("parkgolf");
 
   if (!hasKeyword) {
     return false;
@@ -102,12 +137,19 @@ export function isParkGolfVenue(input: {
 }
 
 /**
- * Groups duplicate candidates based on naming and address similarity.
- * 이름 및 주소 유사도를 기준으로 중복되는 후보들을 그룹화합니다.
+ * Groups duplicate candidates based on naming, address similarity, and proximity.
+ * 이름, 주소 유사도 및 위경도 인접도를 기준으로 중복되는 후보들을 그룹화합니다.
  */
 export function clusterDuplicates(inputs: NormalizedFacilityCandidate[]): DuplicateCluster[] {
   const clusters: DuplicateCluster[] = [];
   const visited = new Set<string>();
+
+  // Helper mapping to easily lookup candidates by hash
+  // 해시로 후보를 빠르게 찾기 위한 매핑 사전
+  const candidateMap = new Map<string, NormalizedFacilityCandidate>();
+  for (const c of inputs) {
+    candidateMap.set(c.contentHash, c);
+  }
 
   for (let i = 0; i < inputs.length; i++) {
     const primary = inputs[i];
@@ -127,32 +169,94 @@ export function clusterDuplicates(inputs: NormalizedFacilityCandidate[]): Duplic
 
       if (visited.has(targetKey)) continue;
 
-      // Exact match
-      // 완전 일치 판정
+      let isDuplicate = false;
+
+      // 1. Exact match
+      // 1. 완전 일치 판정 (해시 또는 원본 링크 일치)
       if (
         primary.contentHash === target.contentHash ||
         (primary.sourceUrl && primary.sourceUrl === target.sourceUrl)
       ) {
-        members.push(targetKey);
-        visited.add(targetKey);
+        isDuplicate = true;
+        status = "exact";
+        reason = "Exact match by content hash or URL / 콘텐츠 해시 또는 URL 완전 일치";
       }
-      // Probable match by name and address
-      // 이름 및 주소 유사 일치 판정
+      // 2. Probable match by name and address
+      // 2. 이름 및 주소 유사 일치 판정
       else if (
         primary.normalizedName === target.normalizedName &&
         primary.normalizedAddress === target.normalizedAddress
       ) {
-        members.push(targetKey);
-        visited.add(targetKey);
+        isDuplicate = true;
         status = "probable";
         reason = "Probable match by normalized name and address / 정규화된 이름 및 주소 유사 일치";
+      }
+      // 3. Proximity and name similarity (Within 100m)
+      // 3. 위경도 인접도(100m 이내) 및 이름 유사도 판정
+      else if (
+        primary.lat !== null && primary.lng !== null &&
+        target.lat !== null && target.lng !== null
+      ) {
+        const dist = haversineKm(
+          { lat: primary.lat, lng: primary.lng },
+          { lat: target.lat, lng: target.lng }
+        );
+
+        if (dist <= 0.1) { // 100m
+          // Check if names are similar (one contains another, or exact match)
+          const nameMatch =
+            primary.normalizedName === target.normalizedName ||
+            primary.normalizedName.includes(target.normalizedName) ||
+            target.normalizedName.includes(primary.normalizedName);
+
+          if (nameMatch) {
+            isDuplicate = true;
+            status = "probable";
+            reason = "Probable match by coordinates proximity (under 100m) and naming similarity / 100m 이내 인접 및 명칭 유사 일치";
+          }
+        }
+      }
+
+      if (isDuplicate) {
+        members.push(targetKey);
+        visited.add(targetKey);
       }
     }
 
     if (members.length > 1) {
+      // Find the best canonical candidate based on source authority and completeness
+      // 소스 신뢰도 가중치 및 필드 충실도 기준으로 가장 적절한 대표(Canonical) 레코드를 선정합니다.
+      const sortedMembers = [...members].sort((aId, bId) => {
+        const a = candidateMap.get(aId)!;
+        const b = candidateMap.get(bId)!;
+
+        const weightA = getSourceWeight(a);
+        const weightB = getSourceWeight(b);
+
+        if (weightA !== weightB) {
+          return weightB - weightA; // Higher weight first
+        }
+
+        // Tie breaker 1: has phone
+        const hasPhoneA = a.phone ? 1 : 0;
+        const hasPhoneB = b.phone ? 1 : 0;
+        if (hasPhoneA !== hasPhoneB) {
+          return hasPhoneB - hasPhoneA;
+        }
+
+        // Tie breaker 2: has coordinates
+        const hasCoordsA = (a.lat !== null && a.lng !== null) ? 1 : 0;
+        const hasCoordsB = (b.lat !== null && b.lng !== null) ? 1 : 0;
+        if (hasCoordsA !== hasCoordsB) {
+          return hasCoordsB - hasCoordsA;
+        }
+
+        return aId.localeCompare(bId);
+      });
+
       clusters.push({
         duplicateStatus: status,
-        canonicalKey: primaryKey,
+        canonicalKey: sortedMembers[0],
         memberKeys: members,
         reason,
       });

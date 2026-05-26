@@ -1,16 +1,22 @@
 import { SourceAdapter } from "./source-types.js";
-import { OfficialAdapter } from "./official.js";
-import { McstAdapter } from "./mcst.js";
 import { KakaoAdapter } from "./kakao.js";
+import { PORTAL_DATASETS, PublicPortalAdapter } from "./public-portal.js";
+import { KpgaAdapter } from "./kpga.js";
+import { OfficialAdapter } from "./official.js";
+import { DjpkgolfAdapter } from "./djpkgolf.js";
+import { ParkGolfListAdapter } from "./parkgolflist.js";
 
 /**
  * Global registry of active source adapters
  * 활성화된 소스 어댑터의 전역 레지스트리
  */
 const registry: SourceAdapter[] = [
-  new OfficialAdapter(),
-  new McstAdapter(),
+  ...PORTAL_DATASETS.map((config) => new PublicPortalAdapter(config)),
   new KakaoAdapter(),
+  new KpgaAdapter(),
+  new OfficialAdapter(),
+  new DjpkgolfAdapter(),
+  new ParkGolfListAdapter(),
 ];
 
 /**

@@ -8,8 +8,8 @@ export function normalizeAddress(address: string): string {
 }
 
 /**
- * Extracts province and district from a raw Korean address.
- * 한국어 원시 주소로부터 광역권역(province) 및 시군구(district)를 추출합니다.
+ * Extracts province and district from a raw Korean address using local regex.
+ * 로컬 정규식을 활용하여 한국어 원시 주소로부터 광역권역(province) 및 시군구(district)를 추출합니다.
  */
 export function parseAddressRegion(address: string): {
   province: string | null;
@@ -88,4 +88,69 @@ export function parseAddressRegion(address: string): {
   }
 
   return { province, district, regionKey };
+}
+
+/**
+ * Standardizes raw address and extracts regions utilizing the government Juso Search API.
+ * 행정안전부 도로명주소 검색 API를 호출하여 주소를 표준화하고 행정구역 정보를 파싱합니다.
+ */
+export async function normalizeAddressAndRegion(
+  address: string,
+  userAgent: string
+): Promise<{
+  standardizedAddress: string | null;
+  province: string | null;
+  district: string | null;
+  regionKey: string | null;
+}> {
+  const confirmKey = process.env.JUSO_CONFIRM_KEY;
+  if (!confirmKey) {
+    console.warn("Juso API key is not configured. Falling back to local parser. / 도로명주소 API 키가 설정되지 않아 로컬 파서를 사용합니다.");
+    return { standardizedAddress: null, ...parseAddressRegion(address) };
+  }
+
+  if (!address || address.trim() === "") {
+    return { standardizedAddress: null, province: null, district: null, regionKey: null };
+  }
+
+  try {
+    const url = `https://business.juso.go.kr/addrlink/addrLinkApi.do?currentPage=1&countPerPage=1&keyword=${encodeURIComponent(address)}&confmKey=${confirmKey}&resultType=json`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "User-Agent": userAgent,
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`Juso API failed with status ${response.status} / 도로명주소 API 호출 실패: ${response.status}`);
+      return { standardizedAddress: null, ...parseAddressRegion(address) };
+    }
+
+    const data: any = await response.json();
+    const results = data.results;
+
+    if (results && results.common && results.common.errorCode === "0" && results.juso && results.juso.length > 0) {
+      const juso = results.juso[0];
+      const standardizedAddress = juso.roadAddrPart1; // Use clean road name address / 정제된 도로명주소 사용
+      
+      // Standardize the province name using local standard map
+      // 반환된 시도명(siNm)을 로컬 표준 규격에 맞게 매핑합니다.
+      const regionData = parseAddressRegion(juso.siNm + " " + (juso.sggNm || ""));
+
+      return {
+        standardizedAddress,
+        province: regionData.province,
+        district: juso.sggNm || null,
+        regionKey: regionData.regionKey,
+      };
+    }
+
+    // Fallback if no juso found
+    // 검색 결과가 없는 경우 로컬 파서 활용
+    return { standardizedAddress: null, ...parseAddressRegion(address) };
+  } catch (error) {
+    console.error(`Failed to call Juso API for "${address}": / 도로명주소 API 호출 중 에러 발생:`, error);
+    return { standardizedAddress: null, ...parseAddressRegion(address) };
+  }
 }
