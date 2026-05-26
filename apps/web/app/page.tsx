@@ -7,6 +7,8 @@ import { FacilitySummary } from "@parkgolf/shared";
  * Root Home Page of the ParkGolfFinder Web Application.
  * ParkGolfFinder 웹 애플리케이션의 루트 홈 페이지입니다.
  */
+export const revalidate = 60;
+
 export default async function HomePage() {
   let dbFacilities: any[] = [];
   try {
