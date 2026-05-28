@@ -63,21 +63,13 @@ export default function FacilityMap({ lat, lng, name, kakaoPlaceId, mapSearchQue
     const options = {
       center: new maps.LatLng(lat, lng),
       level: 3,
+      marker: {
+        position: new maps.LatLng(lat, lng),
+        text: name
+      }
     };
 
-    const map = new maps.Map(container, options);
-
-    const markerPosition = new maps.LatLng(lat, lng);
-    const marker = new maps.Marker({
-      position: markerPosition,
-    });
-
-    marker.setMap(map);
-
-    const infowindow = new maps.InfoWindow({
-      content: `<div style="padding:6px 12px; color:#121824; font-size:12px; font-weight:bold; border-radius:8px;">${name}</div>`,
-    });
-    infowindow.open(map, marker);
+    new maps.StaticMap(container, options);
   }, [mapLoaded, lat, lng, name]);
 
   const targetMapUrl = kakaoPlaceId
