@@ -40,6 +40,11 @@ export default async function HomePage() {
           lng: f.lng,
           baseFeeText: f.pricing?.baseFeeText || "정보 없음 / No Info",
           concessionFeeText: f.pricing?.concessionFeeText || null,
+          kakaoPlaceId: f.kakaoPlaceId,
+          naverPlaceId: f.naverPlaceId,
+          mapSearchQuery: f.mapSearchQuery,
+          reservationSummary: f.reservation?.summary || "예약 정보 확인 필요",
+          homepageUrl: f.reservation?.methods?.find((m: any) => m.url)?.url || f.sourceUrl || null,
         }))
       : (MOCK_FACILITIES as any[]);
 

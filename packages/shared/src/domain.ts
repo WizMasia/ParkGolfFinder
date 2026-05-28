@@ -54,6 +54,11 @@ export interface FacilitySummary {
   baseFeeText: string;
   concessionFeeText?: string | null;
   distanceKm?: number;
+  kakaoPlaceId?: string | null;
+  naverPlaceId?: string | null;
+  mapSearchQuery?: string | null;
+  reservationSummary?: string | null;
+  homepageUrl?: string | null;
 }
 
 /**
