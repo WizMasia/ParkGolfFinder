@@ -110,7 +110,13 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
         {/* 4. 지도 영역 */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 md:p-8 shadow-xl space-y-4">
           <h2 className="text-lg font-bold text-white">위치 지도 / Location Map</h2>
-          <FacilityMap lat={facility.lat} lng={facility.lng} name={facility.name} />
+          <FacilityMap
+            lat={facility.lat}
+            lng={facility.lng}
+            name={facility.name}
+            kakaoPlaceId={facility.kakaoPlaceId}
+            mapSearchQuery={facility.mapSearchQuery}
+          />
         </section>
 
         {/* 5. Operator information */}
