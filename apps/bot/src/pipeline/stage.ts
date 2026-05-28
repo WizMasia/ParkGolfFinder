@@ -56,6 +56,9 @@ export async function runStagePipeline(scope: string, records: SourceRecord[]): 
         duplicateStatus: "ambiguous", // Initial state before dedupe / 중복 판정 전 초기 상태
         operatorName: record.extractedOperatorName,
         phone: record.extractedPhone,
+        kakaoPlaceId: record.kakaoPlaceId,
+        naverPlaceId: record.naverPlaceId,
+        mapSearchQuery: record.mapSearchQuery,
       });
 
       // 4. Insert reservation method if extracted

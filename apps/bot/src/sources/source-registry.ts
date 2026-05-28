@@ -1,5 +1,6 @@
 import { SourceAdapter } from "./source-types.js";
 import { KakaoAdapter } from "./kakao.js";
+import { NaverAdapter } from "./naver.js";
 import { PORTAL_DATASETS, PublicPortalAdapter } from "./public-portal.js";
 import { KpgaAdapter } from "./kpga.js";
 import { OfficialAdapter } from "./official.js";
@@ -13,6 +14,7 @@ import { ParkGolfListAdapter } from "./parkgolflist.js";
 const registry: SourceAdapter[] = [
   ...PORTAL_DATASETS.map((config) => new PublicPortalAdapter(config)),
   new KakaoAdapter(),
+  new NaverAdapter(),
   new KpgaAdapter(),
   new OfficialAdapter(),
   new DjpkgolfAdapter(),

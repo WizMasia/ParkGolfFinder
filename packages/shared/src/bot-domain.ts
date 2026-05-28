@@ -29,6 +29,7 @@ export type ReviewDecision = "confirmed" | "candidate" | "hidden";
  * 정규화된 시설 후보 정보
  */
 export interface NormalizedFacilityCandidate {
+  id?: string; // Add optional ID for stable clustering tracking
   contentHash: string;
   sourceName: string;
   sourceUrl: string;
@@ -145,15 +146,16 @@ export function clusterDuplicates(inputs: NormalizedFacilityCandidate[]): Duplic
   const visited = new Set<string>();
 
   // Helper mapping to easily lookup candidates by hash
-  // 해시로 후보를 빠르게 찾기 위한 매핑 사전
+  // 해시 또는 ID로 후보를 빠르게 찾기 위한 매핑 사전
   const candidateMap = new Map<string, NormalizedFacilityCandidate>();
   for (const c of inputs) {
-    candidateMap.set(c.contentHash, c);
+    const key = c.id || c.contentHash;
+    candidateMap.set(key, c);
   }
 
   for (let i = 0; i < inputs.length; i++) {
     const primary = inputs[i];
-    const primaryKey = primary.contentHash;
+    const primaryKey = primary.id || primary.contentHash;
 
     if (visited.has(primaryKey)) continue;
 
@@ -165,7 +167,7 @@ export function clusterDuplicates(inputs: NormalizedFacilityCandidate[]): Duplic
 
     for (let j = i + 1; j < inputs.length; j++) {
       const target = inputs[j];
-      const targetKey = target.contentHash;
+      const targetKey = target.id || target.contentHash;
 
       if (visited.has(targetKey)) continue;
 

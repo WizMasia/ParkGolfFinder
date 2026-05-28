@@ -16,6 +16,7 @@ export async function runReviewPipeline(runId: string): Promise<void> {
   // Convert schema objects to NormalizedFacilityCandidate interface
   // 스키마 객체들을 NormalizedFacilityCandidate 인터페이스로 변환합니다.
   const candidates: NormalizedFacilityCandidate[] = records.map((r) => ({
+    id: r.id, // Ensure stable identification for clustering
     contentHash: r.contentHash,
     sourceName: "",
     sourceUrl: "",
@@ -68,7 +69,7 @@ export async function runReviewPipeline(runId: string): Promise<void> {
     if (record.parkGolfVerdict !== "confirmed") {
       decision = "hidden";
       reason = "Not verified as a park golf venue / 파크골프장 유효성 검증 실패";
-    } else if (duplicateMemberKeys.has(record.contentHash)) {
+    } else if (duplicateMemberKeys.has(record.id)) {
       decision = "hidden";
       reason = "Duplicate record (non-canonical) / 중복된 레코드 (비대표 항목)";
     }

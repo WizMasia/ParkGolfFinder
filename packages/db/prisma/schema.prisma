@@ -25,6 +25,9 @@ model Facility {
   lng           Float
   sourceName    String
   sourceUrl     String?
+  kakaoPlaceId   String?
+  naverPlaceId   String?
+  mapSearchQuery String?
   lastCheckedAt DateTime?
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
@@ -129,6 +132,9 @@ model StagingFacilityRecord {
   contentHash            String
   parkGolfVerdict        String                       // ParkGolfVerdict ("confirmed", "candidate", "hidden")
   duplicateStatus        String                       // DuplicateStatus ("exact", "probable", "ambiguous")
+  kakaoPlaceId           String?
+  naverPlaceId           String?
+  mapSearchQuery         String?
   reservations           StagingReservationRecord[]
   decision               StagingDecision?
 }

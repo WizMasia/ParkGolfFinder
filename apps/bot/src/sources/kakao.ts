@@ -145,21 +145,28 @@ export class KakaoAdapter implements SourceAdapter {
             const rawText = JSON.stringify(item);
             const contentHash = crypto.createHash("sha256").update(rawText).digest("hex");
             
-            const lat = parseFloat(item.y);
-            const lng = parseFloat(item.x);
+             const lat = parseFloat(item.y);
+             const lng = parseFloat(item.x);
+             
+             const address = item.road_address_name || item.address_name || "";
+             const addrParts = address.split(" ");
+             const regionPrefix = addrParts.slice(0, 2).join(" ");
+             const mapSearchQuery = `${regionPrefix} ${item.place_name}`.trim();
 
-            allRecords.push({
-              sourceName: this.name,
-              sourceUrl: item.place_url || urlWithQuery,
-              sourceKind: this.kind,
-              contentHash,
-              rawText,
-              extractedName: item.place_name,
-              extractedAddress: item.road_address_name || item.address_name,
-              extractedOperatorName: null,
-              extractedPhone: item.phone || null,
-              extractedReservationText: null,
-            });
+             allRecords.push({
+               sourceName: this.name,
+               sourceUrl: item.place_url || urlWithQuery,
+               sourceKind: this.kind,
+               contentHash,
+               rawText,
+               extractedName: item.place_name,
+               extractedAddress: address,
+               extractedOperatorName: null,
+               extractedPhone: item.phone || null,
+               extractedReservationText: null,
+               kakaoPlaceId: item.id || null,
+               mapSearchQuery,
+             });
           }
         } catch (error) {
           console.error(`[KakaoAdapter] Error fetching Kakao keyword search for "${query}": / "${query}" 검색 중 오류 발생:`, error);

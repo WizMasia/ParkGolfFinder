@@ -15,6 +15,9 @@ export interface SourceRecord {
   extractedOperatorName: string | null;
   extractedPhone: string | null;
   extractedReservationText: string | null;
+  kakaoPlaceId?: string | null;
+  naverPlaceId?: string | null;
+  mapSearchQuery?: string | null;
 }
 
 /**

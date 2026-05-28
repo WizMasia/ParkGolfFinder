@@ -68,6 +68,9 @@ export async function insertFacilityRecord(data: {
   contentHash: string;
   parkGolfVerdict: string;
   duplicateStatus: string;
+  kakaoPlaceId?: string | null;
+  naverPlaceId?: string | null;
+  mapSearchQuery?: string | null;
 }) {
   return prisma.stagingFacilityRecord.create({
     data,
