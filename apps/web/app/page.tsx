@@ -3,6 +3,21 @@ import { FacilitySearchUi } from "../components/facility-search-ui";
 import { MOCK_FACILITIES } from "../lib/mock-data";
 import { FacilitySummary } from "@parkgolf/shared";
 
+function isRealHomepageUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const lowercaseUrl = url.toLowerCase();
+  const blacklistedDomains = [
+    "parkgolflist.com",
+    "djpkgolf.kr",
+    "api.odcloud.kr",
+    "data.go.kr",
+    "openapi.gg.go.kr",
+    "eshare.go.kr",
+    "local_upload"
+  ];
+  return !blacklistedDomains.some(domain => lowercaseUrl.includes(domain));
+}
+
 /**
  * Root Home Page of the ParkGolfFinder Web Application.
  * ParkGolfFinder 웹 애플리케이션의 루트 홈 페이지입니다.
@@ -43,8 +58,8 @@ export default async function HomePage() {
           kakaoPlaceId: f.kakaoPlaceId,
           naverPlaceId: f.naverPlaceId,
           mapSearchQuery: f.mapSearchQuery,
-          reservationSummary: f.reservation?.summary || "예약 정보 확인 필요",
-          homepageUrl: f.reservation?.methods?.find((m: any) => m.url)?.url || f.sourceUrl || null,
+           reservationSummary: f.reservation?.summary || "예약 정보 확인 필요",
+           homepageUrl: (f.sourceUrl && isRealHomepageUrl(f.sourceUrl)) ? f.sourceUrl : null,
         }))
       : (MOCK_FACILITIES as any[]);
 

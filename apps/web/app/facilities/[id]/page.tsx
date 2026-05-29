@@ -5,6 +5,21 @@ import { ReservationMethodList } from "../../../components/reservation-method-li
 import FacilityMap from "../../../components/facility-map";
 import { MOCK_FACILITIES } from "../../../lib/mock-data";
 
+function isRealHomepageUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const lowercaseUrl = url.toLowerCase();
+  const blacklistedDomains = [
+    "parkgolflist.com",
+    "djpkgolf.kr",
+    "api.odcloud.kr",
+    "data.go.kr",
+    "openapi.gg.go.kr",
+    "eshare.go.kr",
+    "local_upload"
+  ];
+  return !blacklistedDomains.some(domain => lowercaseUrl.includes(domain));
+}
+
 interface FacilityDetailPageProps {
   params: Promise<{ id: string }>;
 }
@@ -69,6 +84,18 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
           </span>
           <h1 className="text-3xl font-black text-white mb-2">{facility.name}</h1>
           <p className="text-slate-400 text-sm">{facility.address}</p>
+          {facility.sourceUrl && isRealHomepageUrl(facility.sourceUrl) && (
+            <div className="mt-4 pt-4 border-t border-slate-800/60">
+              <a
+                href={facility.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30 transition-all w-full sm:w-auto justify-center"
+              >
+                🌐 공식 홈페이지 / 예약 페이지 바로가기
+              </a>
+            </div>
+          )}
         </section>
 
         {/* 2. Reservation info */}

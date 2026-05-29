@@ -52,6 +52,7 @@ export async function runPromotePipeline(runId: string): Promise<void> {
           naverPlaceId: record.naverPlaceId,
           mapSearchQuery: record.mapSearchQuery,
           sourceName: "bot",
+          sourceUrl: record.sourceUrl,
           lastCheckedAt: new Date(),
         },
         create: {
@@ -72,6 +73,7 @@ export async function runPromotePipeline(runId: string): Promise<void> {
           naverPlaceId: record.naverPlaceId,
           mapSearchQuery: record.mapSearchQuery,
           sourceName: "bot",
+          sourceUrl: record.sourceUrl,
           lastCheckedAt: new Date(),
         },
       });

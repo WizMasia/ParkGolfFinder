@@ -137,6 +137,7 @@ model StagingFacilityRecord {
   mapSearchQuery         String?
   reservations           StagingReservationRecord[]
   decision               StagingDecision?
+  sourceUrl              String?
 }
 
 /// Booking method candidates linked to staging records

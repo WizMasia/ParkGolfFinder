@@ -71,6 +71,7 @@ export async function insertFacilityRecord(data: {
   kakaoPlaceId?: string | null;
   naverPlaceId?: string | null;
   mapSearchQuery?: string | null;
+  sourceUrl?: string | null;
 }) {
   return prisma.stagingFacilityRecord.create({
     data,

@@ -59,6 +59,7 @@ export async function runStagePipeline(scope: string, records: SourceRecord[]): 
         kakaoPlaceId: record.kakaoPlaceId,
         naverPlaceId: record.naverPlaceId,
         mapSearchQuery: record.mapSearchQuery,
+        sourceUrl: record.sourceUrl,
       });
 
       // 4. Insert reservation method if extracted
