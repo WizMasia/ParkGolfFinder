@@ -39,28 +39,32 @@ export default async function HomePage() {
   // 데이터베이스 레코드를 FacilitySummary 포맷으로 변환합니다.
   const mappedFacilities: FacilitySummary[] =
     dbFacilities.length > 0
-      ? dbFacilities.map((f: any) => ({
-          id: f.id,
-          name: f.name,
-          address: f.address,
-          province: f.province,
-          district: f.district,
-          regionKey: f.regionKey,
-          facilityType: f.facilityType as any,
-          status: f.status as any,
-          ownership: f.ownership as any,
-          operatorName: f.operatorName,
-          phone: f.phone,
-          lat: f.lat,
-          lng: f.lng,
-          baseFeeText: f.pricing?.baseFeeText || "정보 없음 / No Info",
-          concessionFeeText: f.pricing?.concessionFeeText || null,
-          kakaoPlaceId: f.kakaoPlaceId,
-          naverPlaceId: f.naverPlaceId,
-          mapSearchQuery: f.mapSearchQuery,
-           reservationSummary: f.reservation?.summary || "예약 정보 확인 필요",
-           homepageUrl: (f.sourceUrl && isRealHomepageUrl(f.sourceUrl)) ? f.sourceUrl : null,
-        }))
+      ? dbFacilities.map((f: any) => {
+          const reservationUrl = f.reservation?.methods?.find((m: any) => m.url)?.url;
+          const bestUrl = reservationUrl || f.sourceUrl;
+          return {
+            id: f.id,
+            name: f.name,
+            address: f.address,
+            province: f.province,
+            district: f.district,
+            regionKey: f.regionKey,
+            facilityType: f.facilityType as any,
+            status: f.status as any,
+            ownership: f.ownership as any,
+            operatorName: f.operatorName,
+            phone: f.phone,
+            lat: f.lat,
+            lng: f.lng,
+            baseFeeText: f.pricing?.baseFeeText || "정보 없음 / No Info",
+            concessionFeeText: f.pricing?.concessionFeeText || null,
+            kakaoPlaceId: f.kakaoPlaceId,
+            naverPlaceId: f.naverPlaceId,
+            mapSearchQuery: f.mapSearchQuery,
+            reservationSummary: f.reservation?.summary || "예약 정보 확인 필요",
+            homepageUrl: (bestUrl && isRealHomepageUrl(bestUrl)) ? bestUrl : null,
+          };
+        })
       : (MOCK_FACILITIES as any[]);
 
   return (

@@ -62,6 +62,9 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
     }
   };
 
+  const reservationUrl = facility.reservation?.methods?.find((m: any) => m.url)?.url;
+  const bestUrl = reservationUrl || facility.sourceUrl;
+
   return (
     <main className="mx-auto max-w-4xl p-6 md:p-12">
       {/* Navigation header */}
@@ -84,10 +87,10 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
           </span>
           <h1 className="text-3xl font-black text-white mb-2">{facility.name}</h1>
           <p className="text-slate-400 text-sm">{facility.address}</p>
-          {facility.sourceUrl && isRealHomepageUrl(facility.sourceUrl) && (
+          {bestUrl && isRealHomepageUrl(bestUrl) && (
             <div className="mt-4 pt-4 border-t border-slate-800/60">
               <a
-                href={facility.sourceUrl}
+                href={bestUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30 transition-all w-full sm:w-auto justify-center"

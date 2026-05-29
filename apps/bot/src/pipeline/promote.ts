@@ -30,6 +30,14 @@ export async function runPromotePipeline(runId: string): Promise<void> {
     if (!record) continue;
 
     try {
+      // Automatic classification for screen/indoor (case-insensitive "screen", "indoor", "스크린", "실내")
+      const lowerName = record.name.toLowerCase();
+      const isIndoor = lowerName.includes("스크린") || 
+                       lowerName.includes("실내") || 
+                       lowerName.includes("screen") || 
+                       lowerName.includes("indoor");
+      const facilityType = isIndoor ? "indoor" : "outdoor";
+
       // 2. Upsert to production Facility
       // 2. 프로덕션 Facility 테이블에 upsert를 수행합니다.
       const facility = await prisma.facility.upsert({
@@ -44,6 +52,7 @@ export async function runPromotePipeline(runId: string): Promise<void> {
           province: record.province,
           district: record.district,
           regionKey: record.regionKey || "capital",
+          facilityType,
           operatorName: record.operatorName || "기타",
           phone: record.phone,
           lat: record.lat || 37.5,
@@ -62,7 +71,7 @@ export async function runPromotePipeline(runId: string): Promise<void> {
           province: record.province,
           district: record.district,
           regionKey: record.regionKey || "capital",
-          facilityType: "outdoor",
+          facilityType,
           status: "active",
           ownership: "public",
           operatorName: record.operatorName || "기타",
