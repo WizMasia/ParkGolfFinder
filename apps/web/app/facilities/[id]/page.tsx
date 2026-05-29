@@ -90,8 +90,8 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
           </span>
           <h1 className="text-3xl font-black text-white mb-2">{facility.name}</h1>
           <p className="text-slate-400 text-sm">{facility.address}</p>
-          {bestUrl && isRealHomepageUrl(bestUrl) && (
-            <div className="mt-4 pt-4 border-t border-slate-800/60">
+          <div className="mt-4 pt-4 border-t border-slate-800/60 flex flex-col sm:flex-row gap-2.5">
+            {bestUrl && isRealHomepageUrl(bestUrl) && (
               <a
                 href={bestUrl}
                 target="_blank"
@@ -100,8 +100,16 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
               >
                 🌐 공식 홈페이지 / 예약 페이지 바로가기
               </a>
-            </div>
-          )}
+            )}
+            <a
+              href={`https://search.naver.com/search.naver?query=${encodeURIComponent((facility.province || "") + " " + facility.name + " 후기")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:border-slate-600 transition-all justify-center w-full sm:w-auto"
+            >
+              🔍 블로그 방문 후기 및 상세 안내 보기
+            </a>
+          </div>
         </section>
 
         {/* 2. Reservation info */}
