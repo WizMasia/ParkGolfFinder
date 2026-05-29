@@ -63,7 +63,10 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
   };
 
   const reservationUrl = facility.reservation?.methods?.find((m: any) => m.url)?.url;
-  const bestUrl = reservationUrl || facility.sourceUrl;
+  const bestUrl =
+    reservationUrl ||
+    facility.sourceUrl ||
+    (facility.kakaoPlaceId ? `https://place.map.kakao.com/${facility.kakaoPlaceId}` : null);
 
   return (
     <main className="mx-auto max-w-4xl p-6 md:p-12">

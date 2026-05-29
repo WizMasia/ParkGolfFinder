@@ -41,7 +41,10 @@ export default async function HomePage() {
     dbFacilities.length > 0
       ? dbFacilities.map((f: any) => {
           const reservationUrl = f.reservation?.methods?.find((m: any) => m.url)?.url;
-          const bestUrl = reservationUrl || f.sourceUrl;
+          const bestUrl =
+            reservationUrl ||
+            f.sourceUrl ||
+            (f.kakaoPlaceId ? `https://place.map.kakao.com/${f.kakaoPlaceId}` : null);
           return {
             id: f.id,
             name: f.name,
