@@ -12,6 +12,7 @@ export interface MapFacility {
   feeSummary?: string | null;
   address?: string | null;
   phone?: string | null;
+  reservationUrl?: string | null;
   [key: string]: unknown;
 }
 
@@ -54,7 +55,8 @@ export function filterValidFacilities<T extends { lat: number; lng: number }>(fa
   return facilities.filter((f) => isValidCoordinate(f.lat, f.lng));
 }
 
-export function escapeHtml(str: string): string {
+export function escapeHtml(str: string | null | undefined): string {
+  if (!str) return "";
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -98,12 +100,26 @@ export function createPopupHtml(facility: MapFacility): string {
   const holesBadge = facility.holes
     ? '<span style="font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">' + facility.holes + '홀</span>'
     : "";
-  const feeInfo = facility.feeSummary
+  const isVerifiedFee =
+    facility.feeSummary &&
+    !facility.feeSummary.includes("정보 없음") &&
+    !facility.feeSummary.includes("확인 필요") &&
+    !facility.feeSummary.includes("미정");
+  const feeInfo = isVerifiedFee
     ? '<div style="font-size: 12px; color: #475569; margin-top: 4px;">요금: <strong style="color: #34d399;">' + escapeHtml(facility.feeSummary) + '</strong></div>'
     : "";
   const addressInfo = facility.address
     ? '<div style="font-size: 11px; color: #94a3b8; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + escapeHtml(facility.address) + '</div>'
     : "";
+  const bookingBtn = facility.reservationUrl
+    ? '<a href="' + escapeHtml(facility.reservationUrl) + '" target="_blank" rel="noopener noreferrer" style="display: block; flex: 1; text-align: center; background: #0f766e; color: #ffffff; font-size: 12px; font-weight: 700; padding: 6px 8px; border-radius: 6px; text-decoration: none;">' +
+        '예약하기 ↗' +
+      '</a>'
+    : "";
+  const detailBtn =
+    '<a href="/facility/' + facility.id + '" style="display: block; flex: 1; text-align: center; background: ' + (facility.reservationUrl ? '#f1f5f9; color: #334155;' : '#0f766e; color: #ffffff;') + ' font-size: 12px; font-weight: 700; padding: 6px 8px; border-radius: 6px; text-decoration: none;">' +
+      '상세보기' +
+    '</a>';
 
   return '<div style="padding: 6px 4px; min-width: 170px; max-width: 240px; font-family: system-ui, -apple-system, sans-serif;">' +
     '<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid #334155; padding-bottom: 6px;">' +
@@ -113,9 +129,8 @@ export function createPopupHtml(facility: MapFacility): string {
     feeInfo +
     addressInfo +
     '<div style="margin-top: 8px; display: flex; gap: 6px;">' +
-      '<a href="/facility/' + facility.id + '" style="display: block; width: 100%; text-align: center; background: #0f766e; color: #ffffff; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 6px; text-decoration: none;">' +
-        '상세보기' +
-      '</a>' +
+      detailBtn +
+      bookingBtn +
     '</div>' +
   '</div>';
 }

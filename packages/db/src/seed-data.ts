@@ -73,7 +73,7 @@ export const CURATED_SEED_FACILITIES: SeedFacility[] = [
           methodType: "internet_first_come",
           methodText: "송파구 통합예약 사이트 선착순 접수",
           priority: 1,
-          url: "https://example.go.kr/booking",
+          url: "https://www.songpashisul.or.kr",
           notes: "매월 25일 오전 9시 다음 달 예약 오픈 / Booking opens at 9 AM on the 25th of every month",
         },
         {
@@ -294,7 +294,7 @@ export const CURATED_SEED_FACILITIES: SeedFacility[] = [
     lat: 36.958,
     lng: 127.933,
     sourceName: "seed",
-    sourceUrl: "https://example.com",
+    sourceUrl: "https://www.chungju.go.kr/rev",
     pricing: {
       baseFeeText: "무료 이용 가능 / Free Entry",
       concessionFeeText: "만 65세 이상 어르신 및 충주시민 무료 이용",
@@ -443,7 +443,7 @@ export const CURATED_SEED_FACILITIES: SeedFacility[] = [
     lat: 35.912,
     lng: 128.636,
     sourceName: "seed",
-    sourceUrl: "https://example.com",
+    sourceUrl: "https://dgpg.daegu.go.kr",
     pricing: {
       baseFeeText: "기본 2,000원 / Base fee 2000 KRW",
       concessionFeeText: "만 65세 이상 어르신 50% 할인 (1,000원)",
@@ -456,7 +456,7 @@ export const CURATED_SEED_FACILITIES: SeedFacility[] = [
           methodType: "internet_lottery",
           methodText: "대구시 예약 통합 포털 내 추첨 신청",
           priority: 1,
-          url: "https://example.daegu.go.kr/lottery",
+          url: "https://dgpg.daegu.go.kr",
           notes: "매월 1일부터 5일까지 접수 후 7일 발표 / Apply between 1st-5th, drawing on 7th",
         },
       ],

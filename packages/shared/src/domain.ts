@@ -61,6 +61,7 @@ export interface FacilitySummary {
   mapSearchQuery?: string | null;
   reservationSummary?: string | null;
   homepageUrl?: string | null;
+  reservationUrl?: string | null;
 }
 
 /**

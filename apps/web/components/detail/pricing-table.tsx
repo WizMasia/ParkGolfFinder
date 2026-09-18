@@ -8,6 +8,7 @@ export interface PricingData {
 
 export interface PricingTableProps {
   pricing?: PricingData | null;
+  phone?: string | null;
 }
 
 /**
@@ -32,7 +33,60 @@ export function formatFeeType(feeType?: string | null): string {
  * High-contrast senior-readable pricing and concession fee table.
  * Prominently highlights Senior (만 65세 이상) concession benefits.
  */
-export function PricingTable({ pricing }: PricingTableProps) {
+export function PricingTable({ pricing, phone }: PricingTableProps) {
+  // If pricing data is omitted or unverified, display clear inquiry notice instead of misleading table
+  const isVerified =
+    pricing &&
+    pricing.baseFeeText &&
+    !pricing.baseFeeText.includes("정보 없음") &&
+    !pricing.baseFeeText.includes("No Info") &&
+    !pricing.baseFeeText.includes("확인 필요") &&
+    !pricing.baseFeeText.includes("미정");
+
+  if (!isVerified) {
+    const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : null;
+    return (
+      <section
+        aria-labelledby="pricing-heading"
+        className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm"
+      >
+        <div className="flex items-center gap-3 mb-4 border-b border-slate-100 pb-4">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 text-xl font-bold">
+            🏷️
+          </span>
+          <div>
+            <h2 id="pricing-heading" className="text-xl md:text-2xl font-bold text-slate-900">
+              이용 요금 및 감면 혜택
+            </h2>
+            <p className="text-sm md:text-base text-slate-600 mt-0.5">
+              공식 요금 정보 안내
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-slate-50 border border-slate-200 p-6 text-center space-y-3">
+          <p className="text-base md:text-lg text-slate-700 font-medium">
+            현재 공식 등록된 요금 및 감면 정보가 확인되지 않은 구장입니다.
+          </p>
+          <p className="text-sm md:text-base text-slate-500">
+            지자체 조례 및 운영 방침에 따라 무료 개방 또는 현장 발권(관내/관외 요금 상이)될 수 있으니 운영 기관에 사전 문의 후 방문하시기 바랍니다.
+          </p>
+          {cleanPhone && (
+            <div className="pt-2">
+              <a
+                href={`tel:${cleanPhone}`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-base font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors"
+              >
+                <span>운영 기관 전화 문의하기</span>
+                <span>📞</span>
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
   const feeType = pricing?.feeType || "paid";
   const isFree = feeType === "free";
   const baseFeeText = pricing?.baseFeeText || (isFree ? "무료 이용 가능" : "현장 확인 필요");

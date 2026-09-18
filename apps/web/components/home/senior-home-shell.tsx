@@ -68,6 +68,7 @@ export function SeniorHomeShell({ initialFacilities }: SeniorHomeShellProps) {
       feeSummary: f.feeSummary || f.baseFeeText,
       address: f.address,
       phone: f.phone,
+      reservationUrl: f.reservationUrl,
     }));
   }, [rankedFacilities]);
 
@@ -224,4 +225,3 @@ export function SeniorHomeShell({ initialFacilities }: SeniorHomeShellProps) {
 }
 
 export default SeniorHomeShell;
-

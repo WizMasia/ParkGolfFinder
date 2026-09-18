@@ -13,6 +13,7 @@ export interface ReservationMethodItem {
 export interface ReservationTableProps {
   summary?: string | null;
   methods?: ReservationMethodItem[] | null;
+  phone?: string | null;
 }
 
 /**
@@ -39,8 +40,10 @@ export function formatMethodType(type: string): string {
  * Reservation information table designed for high contrast and senior legibility.
  * Information-first layout without requiring external redirects.
  */
-export function ReservationTable({ summary, methods }: ReservationTableProps) {
+export function ReservationTable({ summary, methods, phone }: ReservationTableProps) {
   const hasMethods = methods && methods.length > 0;
+  const primaryOnlineMethod = methods?.find((m) => m.url && m.url.startsWith("http"));
+  const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : null;
 
   return (
     <section
@@ -72,6 +75,31 @@ export function ReservationTable({ summary, methods }: ReservationTableProps) {
         </div>
       )}
 
+      {/* Direct Booking Link or Phone Button */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-3">
+        {primaryOnlineMethod?.url ? (
+          <a
+            href={primaryOnlineMethod.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-lg md:text-xl font-extrabold text-white bg-teal-700 hover:bg-teal-800 transition-colors shadow-md text-center min-h-[56px] w-full"
+            aria-label="공식 예약 사이트 바로가기"
+          >
+            <span>공식 예약 사이트 바로가기</span>
+            <span className="text-xl">↗</span>
+          </a>
+        ) : cleanPhone ? (
+          <a
+            href={`tel:${cleanPhone}`}
+            className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-lg md:text-xl font-extrabold text-teal-900 bg-teal-100 hover:bg-teal-200 border border-teal-300 transition-colors shadow-sm text-center min-h-[56px] w-full"
+            aria-label="전화 예약 문의 바로걸기"
+          >
+            <span>전화 예약 문의 바로걸기</span>
+            <span className="text-xl">📞</span>
+          </a>
+        ) : null}
+      </div>
+
       {hasMethods ? (
         <div className="overflow-x-auto rounded-xl border border-slate-200">
           <table className="w-full text-left border-collapse min-w-[500px]">
@@ -100,6 +128,19 @@ export function ReservationTable({ summary, methods }: ReservationTableProps) {
                       <p className="text-[17px] text-slate-600 mt-1 leading-relaxed">
                         {method.notes}
                       </p>
+                   )}
+                   {method.url && (
+                     <div className="mt-2">
+                       <a
+                         href={method.url}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-bold text-teal-800 bg-teal-50 border border-teal-200 hover:bg-teal-100 transition-colors"
+                       >
+                         <span>신청 페이지 연결</span>
+                         <span>↗</span>
+                       </a>
+                     </div>
                    )}
                  </td>
                   <td className="py-4 px-4 md:px-5 align-top text-slate-700 text-[17px] leading-relaxed">

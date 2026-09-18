@@ -113,12 +113,13 @@ describe("Facility Detail Page & Components / 시설 상세 페이지 및 컴포
       expect(json).toContain("기본 무료 시설로 모든 연령 무료 이용 가능합니다");
     });
 
-    it("should handle omitted pricing data with graceful fallbacks", () => {
-      const element = PricingTable({ pricing: null });
+    it("should handle omitted or unverified pricing data by displaying clear inquiry notice", () => {
+      const element = PricingTable({ pricing: null, phone: "02-1234-5678" });
       const json = safeStringify(element);
 
-      expect(json).toContain("현장 확인 필요");
-      expect(json).toContain("별도 명시된 경로우대 기준이 없습니다");
+      expect(json).toContain("현재 공식 등록된 요금 및 감면 정보가 확인되지 않은 구장입니다");
+      expect(json).toContain("운영 기관 전화 문의하기");
+      expect(json).toContain("tel:0212345678");
     });
   });
 

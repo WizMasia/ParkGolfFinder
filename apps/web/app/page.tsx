@@ -50,14 +50,15 @@ function normalizeFacilitySummary(f: any): FacilitySummary {
     lat: f.lat,
     lng: f.lng,
     holes: extractedHoles,
-    feeSummary: f.pricing?.baseFeeText || f.feeSummary || "무료",
-    baseFeeText: f.pricing?.baseFeeText || f.baseFeeText || "무료",
+    feeSummary: f.pricing?.baseFeeText || f.feeSummary || null,
+    baseFeeText: f.pricing?.baseFeeText || f.baseFeeText || "",
     concessionFeeText: f.pricing?.concessionFeeText || f.concessionFeeText || null,
     kakaoPlaceId: f.kakaoPlaceId || null,
     naverPlaceId: f.naverPlaceId || null,
     mapSearchQuery: f.mapSearchQuery || null,
     reservationSummary: f.reservation?.summary || f.reservationSummary || "예약 정보 확인 필요",
     homepageUrl: bestUrl || null,
+    reservationUrl: reservationUrl || null,
   };
 }
 

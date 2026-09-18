@@ -52,7 +52,8 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
   }
 
   const holes = extractHoles(facility);
-  const feeSummary = facility.pricing?.baseFeeText || "무료";
+  const feeSummary = facility.pricing?.baseFeeText || null;
+  const reservationUrl = facility.reservation?.methods?.find((m: any) => m.url)?.url || facility.sourceUrl || null;
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 pb-16">
@@ -131,10 +132,11 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
         <ReservationTable
           summary={facility.reservation?.summary}
           methods={facility.reservation?.methods}
+          phone={facility.phone}
         />
 
         {/* 3. Structured Pricing Table */}
-        <PricingTable pricing={facility.pricing} />
+        <PricingTable pricing={facility.pricing} phone={facility.phone} />
 
         {/* 4. Course Specifications Table */}
         <FacilitySpecTable
@@ -179,6 +181,7 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
                   feeSummary: feeSummary,
                   address: facility.address,
                  phone: facility.phone,
+                 reservationUrl: reservationUrl,
                },
              ]}
               center={
