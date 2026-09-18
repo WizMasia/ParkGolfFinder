@@ -51,6 +51,8 @@ export interface FacilitySummary {
   phone?: string | null;
   lat: number;
   lng: number;
+  holes?: number | null;
+  feeSummary?: string | null;
   baseFeeText: string;
   concessionFeeText?: string | null;
   distanceKm?: number;
