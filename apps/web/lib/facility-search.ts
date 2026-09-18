@@ -9,7 +9,7 @@ export interface SearchFilterInput {
   facilities: FacilitySummary[];
   query: string;
   regionGroup: "capital" | "gangwon" | "chungcheong" | "honam" | "yeongnam" | "jeju" | null;
-  distanceKm: number;
+  distanceKm: number | null;
   currentLocation: { lat: number; lng: number } | null;
   concessionOn: boolean;
   feeFilter: FeeType | null;
@@ -93,6 +93,17 @@ export function rankFacilities(input: SearchFilterInput): FacilitySummary[] {
 
   // 4. Distance constraint filter
   // 4. 거리 제약 필터 적용
+  if (distanceKm === null) {
+    const sortFn = (a: any, b: any) => {
+      if (a.distanceKm !== b.distanceKm) {
+        return a.distanceKm! - b.distanceKm!;
+      }
+      return a.name.localeCompare(b.name, "ko");
+    };
+    filtered.sort(sortFn);
+    return filtered;
+  }
+
   let inRange = filtered.filter((f) => f.distanceKm! <= distanceKm);
 
   // 5. Sort by distance, then name
