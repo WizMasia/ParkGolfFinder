@@ -11,3 +11,4 @@ export * from "./bot-domain";
 export * from "./domain";
 export * from "./regions";
 export * from "./distance";
+export * from "./classification";

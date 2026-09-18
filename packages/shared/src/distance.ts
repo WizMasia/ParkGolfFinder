@@ -21,3 +21,16 @@ export function haversineKm(
 
   return R * c;
 }
+
+/**
+ * Calculates distance in kilometers between two latitude/longitude coordinate pairs.
+ * 두 위경도 좌표 간의 거리를 킬로미터(km) 단위로 계산합니다.
+ */
+export function calculateDistanceKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  return haversineKm({ lat: lat1, lng: lng1 }, { lat: lat2, lng: lng2 });
+}
