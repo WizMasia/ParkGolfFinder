@@ -20,7 +20,7 @@ export function ViewToggle({ mode, onModeChange, className = "" }: ViewTogglePro
     <div
       role="group"
       aria-label="보기 모드 전환"
-      className={`inline-flex w-full max-w-md p-1.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-lg select-none ${className}`}
+      className={`inline-flex w-full max-w-md p-1.5 rounded-2xl bg-slate-100 border border-slate-200 shadow-sm select-none ${className}`}
     >
       <button
         type="button"
@@ -29,7 +29,7 @@ export function ViewToggle({ mode, onModeChange, className = "" }: ViewTogglePro
         className={`flex-1 flex items-center justify-center gap-2.5 min-h-[48px] py-3 px-4 rounded-xl text-[17px] font-bold transition-all duration-200 cursor-pointer ${
           mode === "list"
             ? "text-white shadow-md bg-[#0f766e]"
-            : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+            : "text-slate-700 hover:text-slate-900 hover:bg-slate-200/70"
         }`}
       >
         <span className="text-xl" aria-hidden="true">📋</span>
@@ -43,7 +43,7 @@ export function ViewToggle({ mode, onModeChange, className = "" }: ViewTogglePro
         className={`flex-1 flex items-center justify-center gap-2.5 min-h-[48px] py-3 px-4 rounded-xl text-[17px] font-bold transition-all duration-200 cursor-pointer ${
           mode === "map"
             ? "text-white shadow-md bg-[#0f766e]"
-            : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+            : "text-slate-700 hover:text-slate-900 hover:bg-slate-200/70"
         }`}
       >
         <span className="text-xl" aria-hidden="true">🗺️</span>

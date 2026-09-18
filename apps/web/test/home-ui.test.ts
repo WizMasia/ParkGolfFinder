@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import React from "react";
 import { ViewToggle, type ViewMode } from "../components/home/view-toggle";
 import { SeniorFacilityCard, formatFeeSummary, formatHolesSummary } from "../components/home/facility-card";
+import { SeniorHomeShell } from "../components/home/senior-home-shell";
 import type { FacilitySummary } from "@parkgolf/shared";
 
 describe("Senior-Friendly Home UI Components / 시니어 친화적 홈 UI 컴포넌트", () => {
@@ -141,6 +142,22 @@ describe("Senior-Friendly Home UI Components / 시니어 친화적 홈 UI 컴포
       expect(childrenStr).toContain("경기도 수원시 영통구");
       expect(childrenStr).toContain("홀수 미정");
       expect(childrenStr).not.toContain("undefined km");
+    });
+
+    it("should render high-contrast light theme classes and touch targets", () => {
+      const element = SeniorFacilityCard({ facility: mockFacility });
+      expect(element.props.className).toContain("bg-white");
+      expect(element.props.className).toContain("border-slate-200");
+      const childrenStr = JSON.stringify(element.props.children);
+      expect(childrenStr).toContain("text-slate-900");
+      expect(childrenStr).toContain("text-[20px]");
+    });
+  });
+
+  describe("SeniorHomeShell / 시니어 홈 쉘 컴포넌트", () => {
+    it("should export SeniorHomeShell component correctly", () => {
+      expect(SeniorHomeShell).toBeDefined();
+      expect(typeof SeniorHomeShell).toBe("function");
     });
   });
 });

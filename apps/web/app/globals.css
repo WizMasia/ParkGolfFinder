@@ -6,40 +6,40 @@
 /* Premium styling tokens and default base styles */
 /* 프리미엄 스타일링 토큰 및 기본 베이스 스타일 */
 body {
-  background: radial-gradient(circle at top left, #121824 0%, #0a0d14 100%);
-  color: #f1f5f9;
+  background: #f8fafc;
+  color: #0f172a;
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Leaflet dark theme & custom marker styles */
+/* Leaflet theme & custom marker styles */
 .leaflet-container {
-  background-color: #0f172a;
+  background-color: #f1f5f9;
   font-family: inherit;
   z-index: 10;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #0f172a !important;
-  color: #f1f5f9 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
   border-radius: 0.75rem !important;
-  border: 1px solid #334155 !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
   padding: 4px !important;
 }
 
 .leaflet-popup-tip {
-  background: #0f172a !important;
-  border: 1px solid #334155 !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
 }
 
 .leaflet-popup-close-button {
-  color: #94a3b8 !important;
+  color: #64748b !important;
   padding: 4px 6px 0 0 !important;
 }
 
 .leaflet-popup-close-button:hover {
-  color: #f1f5f9 !important;
+  color: #0f172a !important;
 }
 
 .custom-leaflet-marker {

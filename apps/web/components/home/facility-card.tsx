@@ -50,44 +50,44 @@ export function SeniorFacilityCard({ facility, className = "" }: FacilityCardPro
   return (
     <Link
       href={`/facility/${id}`}
-      className={`group block rounded-2xl border border-slate-700/80 bg-slate-900/70 p-5 md:p-6 transition-all duration-200 hover:bg-slate-800/80 hover:border-teal-500/50 shadow-md focus:outline-none focus:ring-2 focus:ring-teal-500 ${className}`}
+      className={`group block rounded-2xl border border-slate-200 bg-white p-5 md:p-6 transition-all duration-200 hover:border-teal-700/60 hover:shadow-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-700 ${className}`}
       aria-label={`${name} 상세 정보 보기`}
     >
       <div className="flex flex-col justify-between gap-4 h-full min-h-[140px]">
         <div>
           {/* Header Row: Name & Distance Badge */}
           <div className="flex items-start justify-between gap-3 mb-2">
-            <h3 className="text-[20px] md:text-[22px] font-extrabold text-white group-hover:text-teal-400 transition-colors leading-snug">
+            <h3 className="text-[20px] md:text-[22px] font-extrabold text-slate-900 group-hover:text-teal-700 transition-colors leading-snug">
               {name}
             </h3>
 
             {distanceText && (
-              <span className="shrink-0 inline-flex items-center px-3 py-1.5 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-300 text-[15px] font-bold">
+              <span className="shrink-0 inline-flex items-center px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-teal-800 text-[15px] font-bold">
                 {distanceText}
               </span>
             )}
           </div>
 
           {/* Address */}
-          <p className="text-[17px] text-slate-300 line-clamp-1 mb-3">
+          <p className="text-[17px] text-slate-700 line-clamp-1 mb-3">
             {address || "주소 정보 확인 필요"}
           </p>
         </div>
 
         {/* Badges and Attributes Row */}
-        <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-800">
+        <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-200">
           {/* Holes Badge */}
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-[16px] font-bold">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-900 text-[16px] font-bold">
             <span className="text-sm">⛳</span>
             <span>{holesText}</span>
           </span>
 
           {/* Fee Summary Badge */}
           <span
-            className={`inline-flex items-center px-3 py-1 rounded-lg text-[16px] font-bold border ${
+            className={`inline-flex items-center px-3 py-1.5 rounded-lg text-[16px] font-bold border ${
               isFree
-                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                : "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                : "bg-amber-50 text-amber-800 border-amber-200"
             }`}
           >
             <span>{feeText}</span>
@@ -95,7 +95,7 @@ export function SeniorFacilityCard({ facility, className = "" }: FacilityCardPro
 
           {/* Operator if available */}
           {facility.operatorName && (
-            <span className="hidden sm:inline-block text-[15px] text-slate-400 ml-auto truncate max-w-[180px]">
+            <span className="hidden sm:inline-block text-[15px] text-slate-600 ml-auto truncate max-w-[180px]">
               {facility.operatorName}
             </span>
           )}

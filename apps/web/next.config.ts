@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
   },
   // Support custom webpack rules if necessary
   // 필요한 경우 맞춤형 webpack 규칙을 제공합니다.
+  async rewrites() {
+    return [
+      { source: "/facility/:id", destination: "/facilities/:id" },
+    ];
+  },
 };
 
 export default nextConfig;
