@@ -6,6 +6,7 @@ import { KpgaAdapter } from "./kpga.js";
 import { OfficialAdapter } from "./official.js";
 import { DjpkgolfAdapter } from "./djpkgolf.js";
 import { ParkGolfListAdapter } from "./parkgolflist.js";
+import { OdcloudPortalAdapter } from "./odcloud-portal.js";
 
 /**
  * Global registry of active source adapters
@@ -19,6 +20,7 @@ const registry: SourceAdapter[] = [
   new OfficialAdapter(),
   new DjpkgolfAdapter(),
   new ParkGolfListAdapter(),
+  new OdcloudPortalAdapter(),
 ];
 
 /**
@@ -26,10 +28,14 @@ const registry: SourceAdapter[] = [
  * 실행 범위(scope)에 맞춰 활성화할 소스 어댑터 목록을 반환합니다.
  */
 export function resolveSources(scope: string): SourceAdapter[] {
-  if (scope === "national") {
+  const lowerScope = scope.toLowerCase();
+  if (lowerScope === "national") {
     return registry;
+  }
+  if (lowerScope === "odcloud" || lowerScope === "odcloud-portal") {
+    return registry.filter((adapter) => adapter.name.toLowerCase() === "odcloud-portal");
   }
   // Filter by scope name if specific source scope is given
   // 특정 소스 범위가 지정된 경우 스코프 이름으로 필터링합니다.
-  return registry.filter((adapter) => adapter.name.toLowerCase() === scope.toLowerCase());
+  return registry.filter((adapter) => adapter.name.toLowerCase() === lowerScope);
 }

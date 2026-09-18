@@ -115,6 +115,13 @@ export function parseHolesCount(value: any): number | null {
     }
   }
 
+  // Prioritize matching (\d+)\s*홀: e.g. "1코스 18홀" -> 18, "규모: 27홀" -> 27
+  const holeMatch = str.match(/(\d+)\s*홀/);
+  if (holeMatch) {
+    const parsed = parseInt(holeMatch[1], 10);
+    return !isNaN(parsed) && parsed > 0 ? parsed : null;
+  }
+
   // Extract first digit group: e.g. "18홀", "규모: 27홀", "54홀(A,B,C,D,E,F)"
   const match = str.match(/(\d+)/);
   if (match) {
@@ -187,9 +194,18 @@ export function mapOdcloudItemToRawFacility(item: Record<string, any>): RawFacil
   ]);
   const address = rawAddress ? String(rawAddress).trim() : "";
 
+  const rawFacilityType = findValue(item, [
+    "시설유형",
+    "시설종류",
+    "체육시설종류",
+    "업종",
+  ]);
+  const facilityTypeDesc = rawFacilityType ? String(rawFacilityType).trim() : undefined;
+
   // Strict check using isOutdoorParkGolf from packages/shared
-  // Reject screen golf, driving ranges, country clubs
-  if (!isOutdoorParkGolf(name, address)) {
+  // Do NOT pass full street address into noise check to avoid false positives (e.g. "아카데미로", "(실내체육관 옆)").
+  // Only pass facility-type/description if available.
+  if (!isOutdoorParkGolf(name, facilityTypeDesc)) {
     return null;
   }
 
@@ -250,6 +266,7 @@ export async function fetchOdcloudPortalRecords(
     try {
       const response = await fetch(url, {
         method: "GET",
+        signal: AbortSignal.timeout(10000),
         headers: {
           "User-Agent": userAgent,
         },
@@ -339,4 +356,3 @@ export class OdcloudPortalAdapter implements SourceAdapter {
     return records;
   }
 }
-

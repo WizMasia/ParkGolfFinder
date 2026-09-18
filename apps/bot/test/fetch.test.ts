@@ -37,4 +37,31 @@ describe("Fetch Pipeline / 데이터 수집 파이프라인", () => {
 
     globalFetch.mockRestore();
   });
+
+  it("should resolve odcloud source adapter when scope is odcloud or odcloud-portal", async () => {
+    const mockResponse = {
+      currentCount: 1,
+      matchCount: 1,
+      totalCount: 1,
+      data: [
+        {
+          "시 설 명": "상암 파크골프장",
+          "위 치": "서울특별시 마포구 상암동 1",
+          "운영기관": "마포구청",
+          "홀수": "18홀",
+        },
+      ],
+    };
+
+    const globalFetch = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    } as Response);
+
+    const records = await runFetchPipeline("odcloud");
+    expect(records.length).toBeGreaterThan(0);
+    expect(records.some((r) => r.extractedName === "상암 파크골프장")).toBe(true);
+
+    globalFetch.mockRestore();
+  });
 });

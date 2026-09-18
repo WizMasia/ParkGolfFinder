@@ -1,6 +1,5 @@
 import { resolveSources } from "../sources/source-registry.js";
 import { SourceRecord } from "../sources/source-types.js";
-import { OdcloudPortalAdapter } from "../sources/odcloud-portal.js";
 import { getConfig } from "../config.js";
 
 /**
@@ -9,11 +8,6 @@ import { getConfig } from "../config.js";
  */
 export async function runFetchPipeline(scope: string): Promise<SourceRecord[]> {
   const config = getConfig();
-
-  if (scope.toLowerCase() === "odcloud" || scope.toLowerCase() === "odcloud-portal") {
-    const odcloudAdapter = new OdcloudPortalAdapter();
-    return odcloudAdapter.fetchRecords(config.userAgent);
-  }
 
   const sources = resolveSources(scope);
   const allRecords: SourceRecord[] = [];

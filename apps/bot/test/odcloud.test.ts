@@ -19,6 +19,7 @@ describe("ODCloud Portal Adapter / 공공데이터포털 ODCloud 어댑터", () 
       expect(parseHolesCount("9+9홀")).toBe(18);
       expect(parseHolesCount("54홀(A,B,C,D,E,F)")).toBe(54);
       expect(parseHolesCount("규모: 27홀")).toBe(27);
+      expect(parseHolesCount("1코스 18홀")).toBe(18);
       expect(parseHolesCount(null)).toBeNull();
       expect(parseHolesCount(undefined)).toBeNull();
       expect(parseHolesCount("미정")).toBeNull();
@@ -84,6 +85,26 @@ describe("ODCloud Portal Adapter / 공공데이터포털 ODCloud 어댑터", () 
 
       expect(mapOdcloudItemToRawFacility(screenGolfItem)).toBeNull();
       expect(mapOdcloudItemToRawFacility(regularCcItem)).toBeNull();
+    });
+
+    it("should not falsely filter out facilities with street addresses containing words like 아카데미로 or (실내체육관 옆)", () => {
+      const validItemWithTrickyAddress = {
+        "시설명": "송도 파크골프장",
+        "소재지도로명주소": "인천광역시 연수구 아카데미로 119",
+        "운영기관": "연수구청",
+        "홀수": "18홀",
+      };
+      const validItem2 = {
+        "시설명": "남산 파크골프장",
+        "소재지지번주소": "서울특별시 중구 회현동1가 100-1 (실내체육관 옆)",
+        "운영기관": "중구청",
+        "홀수": "9홀",
+      };
+
+      expect(mapOdcloudItemToRawFacility(validItemWithTrickyAddress)).not.toBeNull();
+      expect(mapOdcloudItemToRawFacility(validItemWithTrickyAddress)?.name).toBe("송도 파크골프장");
+      expect(mapOdcloudItemToRawFacility(validItem2)).not.toBeNull();
+      expect(mapOdcloudItemToRawFacility(validItem2)?.name).toBe("남산 파크골프장");
     });
   });
 
@@ -164,8 +185,14 @@ describe("ODCloud Portal Adapter / 공공데이터포털 ODCloud 어댑터", () 
       expect(yangpyeong?.extractedAddress).toBe("경기도 양평군 강상면 강남로 1");
       expect(yangpyeong?.extractedReservationText).toContain("36홀");
 
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          signal: expect.any(AbortSignal),
+        })
+      );
+
       fetchSpy.mockRestore();
     });
   });
 });
-
