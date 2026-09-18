@@ -132,4 +132,94 @@ describe("clusterDuplicates / 중복 클러스터링", () => {
     expect(clusters[0].memberKeys).toContain("hash1");
     expect(clusters[0].memberKeys).toContain("hash2");
   });
+
+  it("should not cluster candidates with same normalizedName & province if districts differ and distance > 10km or missing", () => {
+    // Generic name in different districts with no coords or far distance
+    const candidates: NormalizedFacilityCandidate[] = [
+      {
+        contentHash: "hash-gangnam",
+        sourceName: "A",
+        sourceUrl: "http://url1",
+        name: "시민 파크골프장",
+        address: "서울시 강남구 개포동",
+        province: "서울",
+        district: "강남구",
+        regionKey: "capital",
+        operatorName: null,
+        phone: null,
+        lat: 37.48,
+        lng: 127.06,
+        rawText: "파크골프",
+        normalizedName: "시민",
+        normalizedAddress: "서울시강남구개포동",
+        sourceKind: "official",
+      },
+      {
+        contentHash: "hash-gangseo",
+        sourceName: "B",
+        sourceUrl: "http://url2",
+        name: "시민 파크골프장",
+        address: "서울시 강서구 마곡동",
+        province: "서울",
+        district: "강서구",
+        regionKey: "capital",
+        operatorName: null,
+        phone: null,
+        lat: 37.56,
+        lng: 126.83, // Distance Gangnam to Gangseo > 20km
+        rawText: "파크골프",
+        normalizedName: "시민",
+        normalizedAddress: "서울시강서구마곡동",
+        sourceKind: "official",
+      },
+    ];
+
+    const clusters = clusterDuplicates(candidates);
+    expect(clusters.length).toBe(0);
+  });
+
+  it("should cluster candidates with same normalizedName & province across differing districts if within 10km", () => {
+    const candidates: NormalizedFacilityCandidate[] = [
+      {
+        contentHash: "hash-border-1",
+        sourceName: "A",
+        sourceUrl: "http://url1",
+        name: "탄천 파크골프장",
+        address: "서울시 강남구 일원동",
+        province: "서울",
+        district: "강남구",
+        regionKey: "capital",
+        operatorName: null,
+        phone: null,
+        lat: 37.49,
+        lng: 127.08,
+        rawText: "파크골프",
+        normalizedName: "탄천",
+        normalizedAddress: "서울시강남구일원동",
+        sourceKind: "official",
+      },
+      {
+        contentHash: "hash-border-2",
+        sourceName: "B",
+        sourceUrl: "http://url2",
+        name: "탄천 파크골프장",
+        address: "서울시 송파구 잠실동",
+        province: "서울",
+        district: "송파구",
+        regionKey: "capital",
+        operatorName: null,
+        phone: null,
+        lat: 37.50,
+        lng: 127.09, // Distance < 2km
+        rawText: "파크골프",
+        normalizedName: "탄천",
+        normalizedAddress: "서울시송파구잠실동",
+        sourceKind: "kakao",
+      },
+    ];
+
+    const clusters = clusterDuplicates(candidates);
+    expect(clusters.length).toBe(1);
+    expect(clusters[0].canonicalKey).toBe("hash-border-1");
+  });
 });

@@ -45,6 +45,7 @@ vi.mock("@parkgolf/db", () => {
         ]),
       },
       facility: {
+        findFirst: vi.fn().mockResolvedValue(null),
         upsert: vi.fn().mockResolvedValue({ id: "fac123" }),
       },
       facilityPricing: {

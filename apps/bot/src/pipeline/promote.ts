@@ -42,11 +42,39 @@ export async function runPromotePipeline(runId: string): Promise<void> {
 
       // 2. Upsert to production Facility
       // 2. 프로덕션 Facility 테이블에 upsert를 수행합니다.
+      // Before upserting facility, check if an existing facility with same name and province (or matching name and district) already exists
+      // 다중 실행 멱등성을 위해 동일한 이름 및 시도/시군구를 가진 기존 시설이 있는지 확인합니다.
+      const orConditions: Array<{ name: string; province?: string; district?: string; address?: string }> = [];
+      if (record.name && record.province) {
+        orConditions.push({ name: record.name, province: record.province });
+      }
+      if (record.name && record.district) {
+        orConditions.push({ name: record.name, district: record.district });
+      }
+      if (orConditions.length === 0) {
+        orConditions.push({ name: record.name, address: record.address });
+      }
+
+      let existingFacility: any = null;
+      try {
+        if (prisma.facility?.findFirst) {
+          existingFacility = await prisma.facility.findFirst({
+            where: {
+              OR: orConditions,
+            },
+          });
+        }
+      } catch {
+        existingFacility = null;
+      }
+
+      const targetFacilityId = existingFacility ? existingFacility.id : record.id;
+
       const facility = await prisma.facility.upsert({
         where: {
           // Identify uniquely by name and address
           // 이름과 주소를 기준으로 유일성을 식별합니다.
-          id: record.id, // Using the same ID to keep reference stable / 참조 안정을 위해 동일 ID 사용
+          id: targetFacilityId,
         },
         update: {
           name: record.name,
@@ -67,7 +95,7 @@ export async function runPromotePipeline(runId: string): Promise<void> {
           lastCheckedAt: new Date(),
         },
         create: {
-          id: record.id,
+          id: targetFacilityId,
           name: record.name,
           address: record.address,
           province: record.province,

@@ -200,7 +200,21 @@ export function clusterDuplicates(inputs: NormalizedFacilityCandidate[]): Duplic
         primary.normalizedName === target.normalizedName &&
         primary.province &&
         target.province &&
-        primary.province === target.province
+        primary.province === target.province &&
+        // If both records have district and the districts differ:
+        // do NOT cluster as duplicates unless coordinates exist and distance is <= 10km
+        !(
+          primary.district &&
+          target.district &&
+          primary.district !== target.district &&
+          (
+            primary.lat === null ||
+            primary.lng === null ||
+            target.lat === null ||
+            target.lng === null ||
+            haversineKm({ lat: primary.lat, lng: primary.lng }, { lat: target.lat, lng: target.lng }) > 10
+          )
+        )
       ) {
         isDuplicate = true;
         status = "probable";

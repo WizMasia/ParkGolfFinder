@@ -13,28 +13,81 @@ export async function runReviewPipeline(runId: string): Promise<void> {
     where: { runId },
   });
 
+  // Fetch staging source metadata to resolve sourceName and sourceKind
+  // 소스 권위도(가중치) 계산을 위해 소스 메타데이터를 조회합니다.
+  let sources: any[] = [];
+  try {
+    if (prisma.stagingSource?.findMany) {
+      sources = (await prisma.stagingSource.findMany({
+        where: { runId },
+      })) || [];
+    }
+  } catch {
+    sources = [];
+  }
+  if (!Array.isArray(sources)) {
+    sources = [];
+  }
+
+  const sourceMapById = new Map<string, { sourceName: string; sourceUrl: string; sourceKind: string }>();
+  const sourceMapByKey = new Map<string, { sourceName: string; sourceUrl: string; sourceKind: string }>();
+  for (const s of sources) {
+    sourceMapById.set(s.id, s);
+    if (s.contentHash) {
+      sourceMapByKey.set(s.contentHash, s);
+    }
+  }
+
   // Convert schema objects to NormalizedFacilityCandidate interface
   // 스키마 객체들을 NormalizedFacilityCandidate 인터페이스로 변환합니다.
-  const candidates: NormalizedFacilityCandidate[] = records.map((r) => ({
-    id: r.id, // Ensure stable identification for clustering
-    contentHash: r.contentHash,
-    sourceName: "",
-    sourceUrl: "",
-    name: r.name,
-    address: r.address,
-    province: r.province,
-    district: r.district,
-    regionKey: r.regionKey,
-    operatorName: r.normalizedOperatorName,
-    phone: r.phone,
-    lat: r.lat,
-    lng: r.lng,
-    rawText: r.rawText,
-    normalizedName: r.normalizedName,
-    normalizedAddress: r.normalizedAddress,
-    normalizedOperatorName: r.normalizedOperatorName,
-    sourceKind: "other",
-  }));
+  const candidates: NormalizedFacilityCandidate[] = records.map((r: any) => {
+    const resolvedSource =
+      r.source ||
+      sourceMapById.get(r.sourceId) ||
+      sourceMapByKey.get(r.sourceKey);
+
+    const sourceName =
+      resolvedSource?.sourceName ||
+      r.sourceName ||
+      r.sourceId ||
+      r.sourceKey ||
+      "";
+
+    const sourceUrl = resolvedSource?.sourceUrl || r.sourceUrl || "";
+
+    const rawKind = resolvedSource?.sourceKind || r.sourceKind;
+    const sourceKind =
+      rawKind === "official" || rawKind === "mcst" || rawKind === "parkgolf24" || rawKind === "kakao"
+        ? rawKind
+        : sourceName.includes("official")
+        ? "official"
+        : sourceName.includes("mcst")
+        ? "mcst"
+        : sourceName.includes("kakao")
+        ? "kakao"
+        : "other";
+
+    return {
+      id: r.id, // Ensure stable identification for clustering
+      contentHash: r.contentHash,
+      sourceName,
+      sourceUrl,
+      name: r.name,
+      address: r.address,
+      province: r.province,
+      district: r.district,
+      regionKey: r.regionKey,
+      operatorName: r.normalizedOperatorName,
+      phone: r.phone,
+      lat: r.lat,
+      lng: r.lng,
+      rawText: r.rawText,
+      normalizedName: r.normalizedName,
+      normalizedAddress: r.normalizedAddress,
+      normalizedOperatorName: r.normalizedOperatorName,
+      sourceKind,
+    };
+  });
 
   // 1. Group duplicates into clusters
   // 1. 중복 대상들을 그룹으로 묶습니다.

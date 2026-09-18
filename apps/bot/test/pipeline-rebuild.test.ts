@@ -15,6 +15,9 @@ vi.mock("@parkgolf/db", () => {
         update: vi.fn(),
         deleteMany: vi.fn(),
       },
+      stagingSource: {
+        findMany: vi.fn(),
+      },
       stagingDecision: {
         findMany: vi.fn(),
       },
@@ -217,6 +220,71 @@ describe("Pipeline Rebuild: Deduplication & Review", () => {
     expect(decisionCalls.length).toBe(1);
     expect(decisionCalls[0][0].decision).toBe("hidden");
   });
+
+  it("should resolve source information and prioritize official sources as canonical", async () => {
+    const mockCandidates = [
+      {
+        id: "rec-kakao",
+        runId: "test-run",
+        sourceId: "kakao",
+        name: "화원 파크골프장",
+        normalizedName: "화원",
+        address: "대구광역시 달성군 화원읍",
+        normalizedAddress: "대구광역시달성군화원읍",
+        province: "대구",
+        district: "달성군",
+        regionKey: "daegu",
+        operatorName: null,
+        phone: "053-123-4567",
+        lat: 35.80,
+        lng: 128.50,
+        rawText: "파크골프",
+        contentHash: "hash-kakao",
+        parkGolfVerdict: "confirmed",
+        duplicateStatus: "ambiguous",
+        source: {
+          sourceName: "kakao",
+          sourceKind: "kakao",
+        },
+      },
+      {
+        id: "rec-official",
+        runId: "test-run",
+        sourceId: "official",
+        name: "화원 파크골프장",
+        normalizedName: "화원",
+        address: "대구광역시 달성군 화원읍 성산리",
+        normalizedAddress: "대구광역시달성군화원읍성산리",
+        province: "대구",
+        district: "달성군",
+        regionKey: "daegu",
+        operatorName: null,
+        phone: null,
+        lat: 35.80,
+        lng: 128.50,
+        rawText: "파크골프",
+        contentHash: "hash-official",
+        parkGolfVerdict: "confirmed",
+        duplicateStatus: "ambiguous",
+        source: {
+          sourceName: "official",
+          sourceKind: "official",
+        },
+      },
+    ];
+
+    (prisma.stagingFacilityRecord.findMany as any).mockResolvedValue(mockCandidates);
+
+    await runReviewPipeline("test-run");
+
+    const decisionCalls = (insertDecision as any).mock.calls;
+    const confirmedDecision = decisionCalls.find((c: any) => c[0].decision === "confirmed");
+    const hiddenDecision = decisionCalls.find((c: any) => c[0].decision === "hidden");
+
+    // Official source should win as canonical despite kakao record having phone
+    expect(confirmedDecision[0].facilityRecordId).toBe("rec-official");
+    expect(hiddenDecision[0].facilityRecordId).toBe("rec-kakao");
+  });
 });
 
 describe("Pipeline Rebuild: Clean Production Promotion", () => {
@@ -304,10 +372,66 @@ describe("Pipeline Rebuild: Clean Production Promotion", () => {
 
     (prisma.stagingDecision.findMany as any).mockResolvedValue(mockDecisions);
 
-    await runPromotePipeline("test-run");
+   await runPromotePipeline("test-run");
 
-    // Must NOT upsert non-outdoor park golf into Facility
-    expect(prisma.facility.upsert).not.toHaveBeenCalled();
+   // Must NOT upsert non-outdoor park golf into Facility
+   expect(prisma.facility.upsert).not.toHaveBeenCalled();
+ });
+
+  it("should reuse existing facility ID if matching facility already exists in production (idempotency)", async () => {
+    const mockDecisions = [
+      {
+        id: "dec-repeat",
+        runId: "test-run-2",
+        decision: "confirmed",
+        facilityRecord: {
+          id: "rec-new-run-id-999",
+          name: "양평 파크골프장",
+          address: "경기도 양평군 강상면",
+          province: "경기",
+          district: "양평군",
+          regionKey: "capital",
+          operatorName: "양평군청",
+          phone: "031-770-0000",
+          lat: 37.49,
+          lng: 127.50,
+          rawText: "양평 파크골프장 36홀",
+          sourceUrl: "https://example.com/yp",
+          reservations: [],
+        },
+      },
+    ];
+
+    (prisma.stagingDecision.findMany as any).mockResolvedValue(mockDecisions);
+    // Existing facility found in production database with ID 'existing-prod-uuid'
+    (prisma.facility.findFirst as any).mockResolvedValue({
+      id: "existing-prod-uuid",
+      name: "양평 파크골프장",
+      province: "경기",
+      district: "양평군",
+    });
+    (prisma.facility.upsert as any).mockResolvedValue({ id: "existing-prod-uuid" });
+    (prisma.facilityPricing.upsert as any).mockResolvedValue({});
+    (prisma.reservationInfo.upsert as any).mockResolvedValue({ id: "res-info-uuid" });
+
+    await runPromotePipeline("test-run-2");
+
+    expect(prisma.facility.findFirst).toHaveBeenCalledWith({
+      where: {
+        OR: [
+          { name: "양평 파크골프장", province: "경기" },
+          { name: "양평 파크골프장", district: "양평군" },
+        ],
+      },
+    });
+
+    // Must upsert using existing facility ID, NOT the new staging record ID
+    expect(prisma.facility.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "existing-prod-uuid" },
+        update: expect.objectContaining({ name: "양평 파크골프장" }),
+        create: expect.objectContaining({ id: "existing-prod-uuid", name: "양평 파크골프장" }),
+      })
+    );
   });
 });
-
