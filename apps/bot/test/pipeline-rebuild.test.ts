@@ -418,10 +418,9 @@ describe("Pipeline Rebuild: Clean Production Promotion", () => {
 
     expect(prisma.facility.findFirst).toHaveBeenCalledWith({
       where: {
-        OR: [
-          { name: "양평 파크골프장", province: "경기" },
-          { name: "양평 파크골프장", district: "양평군" },
-        ],
+        name: "양평 파크골프장",
+        province: "경기",
+        district: "양평군",
       },
     });
 

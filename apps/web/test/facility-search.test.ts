@@ -116,18 +116,17 @@ describe("rankFacilities Search Engine / 시설 검색 및 랭킹 엔진", () =>
     expect(results[1].id).toBe("1");
   });
 
-  it("should fallback to 10 nearest items if no facilities are within range / 범위 내 항목이 없을 시 가장 가까운 리스트를 fallback으로 돌려주어야 합니다", () => {
+  it("should return empty array if no facilities are within distanceKm range / 범위 내 항목이 없을 시 빈 배열을 돌려주어야 합니다", () => {
     const results = rankFacilities({
       facilities: dummyFacilities,
       query: "",
       regionGroup: null,
-      distanceKm: 1, // Extremely narrow range (1km)
-      currentLocation: { lat: 37.52, lng: 126.92 },
+      distanceKm: 0.1, // Extremely narrow range (0.1km)
+      currentLocation: { lat: 38.0, lng: 126.0 },
       concessionOn: false,
       feeFilter: null,
     });
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0].id).toBe("2"); // Falls back to closest Yeouido
+    expect(results).toEqual([]);
   });
 });

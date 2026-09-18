@@ -119,7 +119,7 @@ export async function runReviewPipeline(runId: string): Promise<void> {
     let decision = "confirmed";
     let reason = "Verified park golf venue / 검증된 파크골프장";
 
-    const isOutdoor = isOutdoorParkGolf(record.name, record.rawText);
+    const isOutdoor = isOutdoorParkGolf(record.name);
     if (!isOutdoor || record.parkGolfVerdict !== "confirmed") {
       decision = "hidden";
       reason = "Not verified as a park golf venue / 파크골프장 유효성 검증 실패";

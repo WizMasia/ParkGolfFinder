@@ -50,7 +50,7 @@ export async function runNormalizePipeline(runId: string): Promise<void> {
 
       // 4. Update staging record with normalized and geocoded values
       // 4. 정제되고 좌표가 채워진 값들로 스테이징 레코드를 업데이트합니다.
-      const isOutdoor = isOutdoorParkGolf(record.name, record.rawText);
+      const isOutdoor = isOutdoorParkGolf(record.name);
       const parkGolfVerdict = isOutdoor ? (record.parkGolfVerdict === "hidden" ? "hidden" : "confirmed") : "hidden";
 
       await prisma.stagingFacilityRecord.update({

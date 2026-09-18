@@ -124,7 +124,7 @@ describe("Leaflet Map Component & Utilities / 지도 컴포넌트 유틸리티 �
       expect(popupHtml).toContain("27홀");
       expect(popupHtml).toContain("무료 (구민 전용)");
       expect(popupHtml).toContain("서울특별시 송파구 올림픽로 424");
-      expect(popupHtml).toContain("/facilities/test-facility-123");
+      expect(popupHtml).toContain("/facility/test-facility-123");
       expect(popupHtml).toContain("상세보기");
     });
 
@@ -170,4 +170,3 @@ describe("Leaflet Map Component & Utilities / 지도 컴포넌트 유틸리티 �
     });
   });
 });
-

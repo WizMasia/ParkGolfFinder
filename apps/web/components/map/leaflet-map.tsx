@@ -99,7 +99,7 @@ export function createPopupHtml(facility: MapFacility): string {
     ? '<span style="font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">' + facility.holes + '홀</span>'
     : "";
   const feeInfo = facility.feeSummary
-    ? '<div style="font-size: 12px; color: #cbd5e1; margin-top: 4px;">요금: <strong style="color: #34d399;">' + escapeHtml(facility.feeSummary) + '</strong></div>'
+    ? '<div style="font-size: 12px; color: #475569; margin-top: 4px;">요금: <strong style="color: #34d399;">' + escapeHtml(facility.feeSummary) + '</strong></div>'
     : "";
   const addressInfo = facility.address
     ? '<div style="font-size: 11px; color: #94a3b8; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + escapeHtml(facility.address) + '</div>'
@@ -107,13 +107,13 @@ export function createPopupHtml(facility: MapFacility): string {
 
   return '<div style="padding: 6px 4px; min-width: 170px; max-width: 240px; font-family: system-ui, -apple-system, sans-serif;">' +
     '<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid #334155; padding-bottom: 6px;">' +
-      '<strong style="color: #ffffff; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + safeName + '</strong>' +
+      '<strong style="color: #0f172a; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + safeName + '</strong>' +
       holesBadge +
     '</div>' +
     feeInfo +
     addressInfo +
     '<div style="margin-top: 8px; display: flex; gap: 6px;">' +
-      '<a href="/facilities/' + facility.id + '" style="display: block; width: 100%; text-align: center; background: #0f766e; color: #ffffff; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 6px; text-decoration: none;">' +
+      '<a href="/facility/' + facility.id + '" style="display: block; width: 100%; text-align: center; background: #0f766e; color: #ffffff; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 6px; text-decoration: none;">' +
         '상세보기' +
       '</a>' +
     '</div>' +
@@ -256,4 +256,3 @@ export default function LeafletMap({
 }
 
 export { LeafletMap };
-

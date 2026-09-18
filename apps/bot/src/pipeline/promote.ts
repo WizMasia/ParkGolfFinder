@@ -33,7 +33,7 @@ export async function runPromotePipeline(runId: string): Promise<void> {
     try {
       // Strict check: only promote verified outdoor park golf facilities.
       // 스크린골프, 실내시설, 골프존, CC 등 비실외 파크골프장은 승급에서 원천 배제합니다.
-      if (!isOutdoorParkGolf(record.name, record.rawText)) {
+      if (!isOutdoorParkGolf(record.name)) {
         console.log(`Skipping non-outdoor park golf promotion: ${record.name} / 비실외 파크골프 시설 승급 제외: ${record.name}`);
         continue;
       }
@@ -42,26 +42,26 @@ export async function runPromotePipeline(runId: string): Promise<void> {
 
       // 2. Upsert to production Facility
       // 2. 프로덕션 Facility 테이블에 upsert를 수행합니다.
-      // Before upserting facility, check if an existing facility with same name and province (or matching name and district) already exists
-      // 다중 실행 멱등성을 위해 동일한 이름 및 시도/시군구를 가진 기존 시설이 있는지 확인합니다.
-      const orConditions: Array<{ name: string; province?: string; district?: string; address?: string }> = [];
-      if (record.name && record.province) {
-        orConditions.push({ name: record.name, province: record.province });
-      }
-      if (record.name && record.district) {
-        orConditions.push({ name: record.name, district: record.district });
-      }
-      if (orConditions.length === 0) {
-        orConditions.push({ name: record.name, address: record.address });
+      // Before upserting facility, check if an existing facility with matching name, province, and district already exists
+      // 다중 실행 멱등성을 위해 시군구가 있으면 시도+시군구 모두 일치해야 하고, 없으면 시도 일치를 요구합니다.
+      const targetName = record.normalizedName || record.name;
+      const whereClause: { name: string; province?: string; district?: string; address?: string } = {
+        name: targetName,
+      };
+      if (record.district) {
+        if (record.province) whereClause.province = record.province;
+        whereClause.district = record.district;
+      } else if (record.province) {
+        whereClause.province = record.province;
+      } else if (record.address) {
+        whereClause.address = record.address;
       }
 
       let existingFacility: any = null;
       try {
         if (prisma.facility?.findFirst) {
           existingFacility = await prisma.facility.findFirst({
-            where: {
-              OR: orConditions,
-            },
+            where: whereClause,
           });
         }
       } catch {

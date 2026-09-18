@@ -117,12 +117,5 @@ export function rankFacilities(input: SearchFilterInput): FacilitySummary[] {
 
   inRange.sort(sortFn);
 
-  // Fallback: If no records are within range, return the nearest 10 sorted
-  // 예외 처리: 범위 내에 시설이 없을 시, 가장 가까운 10개 시설을 정렬하여 돌려줍니다.
-  if (inRange.length === 0) {
-    filtered.sort(sortFn);
-    return filtered.slice(0, 10);
-  }
-
   return inRange;
 }
