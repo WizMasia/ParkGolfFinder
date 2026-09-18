@@ -193,6 +193,19 @@ export function clusterDuplicates(inputs: NormalizedFacilityCandidate[]): Duplic
         status = "probable";
         reason = "Probable match by normalized name and address / 정규화된 이름 및 주소 유사 일치";
       }
+      // 2.1 Match by identical normalized name and province
+      // 2.1 동일한 정규화 이름과 광역권(province) 일치 판정
+      else if (
+        primary.normalizedName &&
+        primary.normalizedName === target.normalizedName &&
+        primary.province &&
+        target.province &&
+        primary.province === target.province
+      ) {
+        isDuplicate = true;
+        status = "probable";
+        reason = "Probable match by identical normalized name and province / 정규화된 이름 및 시도 일치";
+      }
       // 3. Proximity and name similarity (Within 100m)
       // 3. 위경도 인접도(100m 이내) 및 이름 유사도 판정
       else if (

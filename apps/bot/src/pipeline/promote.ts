@@ -1,4 +1,5 @@
 import { prisma } from "@parkgolf/db";
+import { isOutdoorParkGolf } from "@parkgolf/shared";
 
 /**
  * Promotes confirmed staging records into the production tables.
@@ -30,13 +31,14 @@ export async function runPromotePipeline(runId: string): Promise<void> {
     if (!record) continue;
 
     try {
-      // Automatic classification for screen/indoor (case-insensitive "screen", "indoor", "스크린", "실내")
-      const lowerName = record.name.toLowerCase();
-      const isIndoor = lowerName.includes("스크린") || 
-                       lowerName.includes("실내") || 
-                       lowerName.includes("screen") || 
-                       lowerName.includes("indoor");
-      const facilityType = isIndoor ? "indoor" : "outdoor";
+      // Strict check: only promote verified outdoor park golf facilities.
+      // 스크린골프, 실내시설, 골프존, CC 등 비실외 파크골프장은 승급에서 원천 배제합니다.
+      if (!isOutdoorParkGolf(record.name, record.rawText)) {
+        console.log(`Skipping non-outdoor park golf promotion: ${record.name} / 비실외 파크골프 시설 승급 제외: ${record.name}`);
+        continue;
+      }
+
+      const facilityType = "outdoor";
 
       // 2. Upsert to production Facility
       // 2. 프로덕션 Facility 테이블에 upsert를 수행합니다.

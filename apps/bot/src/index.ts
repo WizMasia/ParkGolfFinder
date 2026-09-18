@@ -40,7 +40,15 @@ export async function stageCommand(): Promise<void> {
  * 적재된 데이터를 정제합니다 (이름, 주소 정형화 등).
  */
 export async function normalizeCommand(): Promise<void> {
-  console.log("Normalizing staged data... (use run command for full pipeline) / 정제 파이프라인 실행 중... (전체 실행은 run을 이용하세요)");
+  const config = getConfig();
+  console.log("Normalizing staged data... / 스테이징 데이터 정제 중...");
+  // In standalone CLI mode, runs normalization if a run ID is passed via environment or lists instruction
+  const targetRunId = process.env.BOT_RUN_ID || "";
+  if (targetRunId) {
+    await runNormalizePipeline(targetRunId);
+  } else {
+    console.log("BOT_RUN_ID not specified. Use run command for full end-to-end pipeline. / BOT_RUN_ID 미지정. 전체 파이프라인 실행은 run 명령어를 사용하세요.");
+  }
 }
 
 /**
@@ -48,7 +56,14 @@ export async function normalizeCommand(): Promise<void> {
  * 정제된 대상의 중복 여부 및 파크골프장 적합성을 검토합니다.
  */
 export async function reviewCommand(): Promise<void> {
-  console.log("Reviewing candidates... (use run command for full pipeline) / 검토 파이프라인 실행 중... (전체 실행은 run을 이용하세요)");
+  const config = getConfig();
+  console.log("Reviewing candidates... / 후보 검토 및 중복 제거 중...");
+  const targetRunId = process.env.BOT_RUN_ID || "";
+  if (targetRunId) {
+    await runReviewPipeline(targetRunId);
+  } else {
+    console.log("BOT_RUN_ID not specified. Use run command for full end-to-end pipeline. / BOT_RUN_ID 미지정. 전체 파이프라인 실행은 run 명령어를 사용하세요.");
+  }
 }
 
 /**
@@ -56,7 +71,14 @@ export async function reviewCommand(): Promise<void> {
  * 검증이 완료된 후보를 프로덕션 테이블로 승급(반영)시킵니다.
  */
 export async function promoteCommand(): Promise<void> {
-  console.log("Promoting confirmed... (use run command for full pipeline) / 승급 파이프라인 실행 중... (전체 실행은 run을 이용하세요)");
+  const config = getConfig();
+  console.log("Promoting confirmed... / 검증 완료 시설 프로덕션 승급 중...");
+  const targetRunId = process.env.BOT_RUN_ID || "";
+  if (targetRunId) {
+    await runPromotePipeline(targetRunId);
+  } else {
+    console.log("BOT_RUN_ID not specified. Use run command for full end-to-end pipeline. / BOT_RUN_ID 미지정. 전체 파이프라인 실행은 run 명령어를 사용하세요.");
+  }
 }
 
 /**

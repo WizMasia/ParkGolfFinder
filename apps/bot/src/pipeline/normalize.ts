@@ -1,4 +1,5 @@
 import { prisma } from "@parkgolf/db";
+import { isOutdoorParkGolf } from "@parkgolf/shared";
 import { getConfig } from "../config.js";
 import { normalizeName } from "../classification/normalize-name.js";
 import { normalizeAddress, normalizeAddressAndRegion } from "../classification/normalize-address.js";
@@ -49,6 +50,9 @@ export async function runNormalizePipeline(runId: string): Promise<void> {
 
       // 4. Update staging record with normalized and geocoded values
       // 4. 정제되고 좌표가 채워진 값들로 스테이징 레코드를 업데이트합니다.
+      const isOutdoor = isOutdoorParkGolf(record.name, record.rawText);
+      const parkGolfVerdict = isOutdoor ? (record.parkGolfVerdict === "hidden" ? "hidden" : "confirmed") : "hidden";
+
       await prisma.stagingFacilityRecord.update({
         where: { id: record.id },
         data: {
@@ -60,6 +64,7 @@ export async function runNormalizePipeline(runId: string): Promise<void> {
           regionKey: regionData.regionKey,
           lat,
           lng,
+          parkGolfVerdict,
         },
       });
     } catch (error) {

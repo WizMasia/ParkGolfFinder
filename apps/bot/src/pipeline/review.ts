@@ -1,6 +1,6 @@
 import { prisma, insertDuplicateCluster, insertDecision } from "@parkgolf/db";
 import { deduplicateCandidates } from "../classification/dedupe.js";
-import { NormalizedFacilityCandidate } from "@parkgolf/shared";
+import { NormalizedFacilityCandidate, isOutdoorParkGolf } from "@parkgolf/shared";
 
 /**
  * Reviews facility records and writes deduplication clusters and decisions to staging.
@@ -66,7 +66,8 @@ export async function runReviewPipeline(runId: string): Promise<void> {
     let decision = "confirmed";
     let reason = "Verified park golf venue / 검증된 파크골프장";
 
-    if (record.parkGolfVerdict !== "confirmed") {
+    const isOutdoor = isOutdoorParkGolf(record.name, record.rawText);
+    if (!isOutdoor || record.parkGolfVerdict !== "confirmed") {
       decision = "hidden";
       reason = "Not verified as a park golf venue / 파크골프장 유효성 검증 실패";
     } else if (duplicateMemberKeys.has(record.id)) {

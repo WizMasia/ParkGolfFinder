@@ -4,7 +4,7 @@ import {
   insertFacilityRecord,
   insertReservationRecord,
 } from "@parkgolf/db";
-import { isParkGolfVenue } from "@parkgolf/shared";
+import { isOutdoorParkGolf } from "@parkgolf/shared";
 import { SourceRecord } from "../sources/source-types.js";
 
 /**
@@ -31,12 +31,10 @@ export async function runStagePipeline(scope: string, records: SourceRecord[]): 
 
       // 2. Classify park golf eligibility tentatively
       // 2. 임시 파크골프장 여부 분류를 수행합니다.
-      const isEligible = isParkGolfVenue({
-        name: record.extractedName || "",
-        rawText: record.rawText,
-        sourceName: record.sourceName,
-        sourceUrl: record.sourceUrl,
-      });
+      const isEligible = isOutdoorParkGolf(
+        record.extractedName || "",
+        record.rawText
+      );
 
       const parkGolfVerdict = isEligible ? "confirmed" : "hidden";
 
