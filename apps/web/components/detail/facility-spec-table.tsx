@@ -61,8 +61,8 @@ export function FacilitySpecTable({ facility }: FacilitySpecTableProps) {
               <th scope="col" className="py-3.5 px-4 md:px-5 w-1/3">항목</th>
               <th scope="col" className="py-3.5 px-4 md:px-5 w-2/3">세부 사양</th>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 text-base md:text-[17px]">
+         </thead>
+          <tbody className="divide-y divide-slate-200 text-[17px]">
             {/* 코스 규모 */}
             <tr className="hover:bg-slate-50/60 transition-colors">
               <th scope="row" className="py-4 px-4 md:px-5 font-bold text-slate-800 bg-slate-50/40">
@@ -129,11 +129,11 @@ export function FacilitySpecTable({ facility }: FacilitySpecTableProps) {
 
             {/* 정기 휴장 및 이용 시간 */}
             <tr className="hover:bg-slate-50/60 transition-colors">
-              <th scope="row" className="py-4 px-4 md:px-5 font-bold text-slate-800 bg-slate-50/40">
-                정기 휴장 및 안내
-              </th>
-              <td className="py-4 px-4 md:px-5 text-slate-700 text-sm md:text-base leading-relaxed">
-                {closedDays}
+             <th scope="row" className="py-4 px-4 md:px-5 font-bold text-slate-800 bg-slate-50/40">
+               정기 휴장 및 안내
+             </th>
+              <td className="py-4 px-4 md:px-5 text-slate-700 text-[17px] leading-relaxed">
+               {closedDays}
               </td>
             </tr>
           </tbody>

@@ -82,8 +82,8 @@ export function ReservationTable({ summary, methods }: ReservationTableProps) {
                 <th scope="col" className="py-3.5 px-4 md:px-5 w-2/5">접수 및 신청 내용</th>
                 <th scope="col" className="py-3.5 px-4 md:px-5">유의사항 및 규칙</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 text-slate-900 text-base md:text-[17px]">
+           </thead>
+            <tbody className="divide-y divide-slate-200 text-slate-900 text-[17px]">
               {methods!.map((method, idx) => (
                 <tr key={method.id || idx} className="hover:bg-slate-50/60 transition-colors">
                   <td className="py-4 px-4 md:px-5 align-top font-semibold text-teal-800">
@@ -96,13 +96,13 @@ export function ReservationTable({ summary, methods }: ReservationTableProps) {
                     <p className="font-medium text-slate-900 leading-snug">
                       {method.methodText || "세부 내용 확인 필요"}
                     </p>
-                    {method.notes && (
-                      <p className="text-sm md:text-base text-slate-600 mt-1 leading-relaxed">
+                   {method.notes && (
+                      <p className="text-[17px] text-slate-600 mt-1 leading-relaxed">
                         {method.notes}
                       </p>
-                    )}
-                  </td>
-                  <td className="py-4 px-4 md:px-5 align-top text-slate-700 text-sm md:text-base leading-relaxed">
+                   )}
+                 </td>
+                  <td className="py-4 px-4 md:px-5 align-top text-slate-700 text-[17px] leading-relaxed">
                     {method.ruleText ? (
                       <span>{method.ruleText}</span>
                     ) : (

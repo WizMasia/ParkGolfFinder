@@ -66,7 +66,7 @@ export function rankFacilities(input: SearchFilterInput): FacilitySummary[] {
     // 3b. Region key match
     // 3b. 권역 일치 검사
     if (allowedRegionKeys.length > 0) {
-      if (!allowedRegionKeys.includes(f.regionKey)) return false;
+      if (!allowedRegionKeys.includes(f.regionKey) && f.regionKey !== regionGroup) return false;
     }
 
     // 3c. Fee type match

@@ -227,7 +227,24 @@ describe("Facility Detail Page & Components / 시설 상세 페이지 및 컴포
       expect(json).toContain("충주시시설관리공단");
 
       const children = page.props.children[1].props.children;
-      expect(children[2].props.pricing.feeType).toBe("free");
+     expect(children[2].props.pricing.feeType).toBe("free");
+   });
+
+    it("should enforce text-[17px] for table bodies in detail views for senior accessibility", () => {
+      const spec = FacilitySpecTable({
+        facility: { holes: 18, operatorName: "테스트", address: "서울" },
+      });
+      const pricing = PricingTable({
+        pricing: { baseFeeText: "무료", feeType: "free" },
+      });
+      const reservation = ReservationTable({
+        summary: "예약 안내",
+        methods: [{ id: "1", methodType: "phone", methodText: "전화", priority: 1 }],
+      });
+
+      expect(safeStringify(spec)).toContain("text-[17px]");
+      expect(safeStringify(pricing)).toContain("text-[17px]");
+      expect(safeStringify(reservation)).toContain("text-[17px]");
     });
   });
 });

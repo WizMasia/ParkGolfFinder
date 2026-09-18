@@ -178,12 +178,16 @@ export default async function FacilityDetailPage({ params }: FacilityDetailPageP
                   holes: holes,
                   feeSummary: feeSummary,
                   address: facility.address,
-                  phone: facility.phone,
-                },
-              ]}
-              center={[facility.lat, facility.lng]}
-              zoom={15}
-              selectedFacilityId={facility.id}
+                 phone: facility.phone,
+               },
+             ]}
+              center={
+                Number.isFinite(facility.lat) && Number.isFinite(facility.lng)
+                  ? [facility.lat, facility.lng]
+                  : undefined
+              }
+             zoom={15}
+             selectedFacilityId={facility.id}
             />
           </div>
 

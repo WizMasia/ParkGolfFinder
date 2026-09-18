@@ -65,8 +65,8 @@ export function PricingTable({ pricing }: PricingTableProps) {
               <th scope="col" className="py-3.5 px-4 md:px-5 w-1/3">항목</th>
               <th scope="col" className="py-3.5 px-4 md:px-5 w-2/3">요금 및 감면 내용</th>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 text-base md:text-[17px]">
+         </thead>
+          <tbody className="divide-y divide-slate-200 text-[17px]">
             {/* 요금 구분 */}
             <tr className="hover:bg-slate-50/60 transition-colors">
               <th scope="row" className="py-4 px-4 md:px-5 font-bold text-slate-800 bg-slate-50/40">
@@ -113,8 +113,8 @@ export function PricingTable({ pricing }: PricingTableProps) {
                   <div className="text-slate-700">
                     기본 무료 시설로 모든 연령 무료 이용 가능합니다.
                   </div>
-                ) : (
-                  <div className="text-slate-500 italic text-sm md:text-base">
+               ) : (
+                  <div className="text-slate-500 italic text-[17px]">
                     별도 명시된 경로우대 기준이 없습니다. 현장 매표소 또는 조례 감면 규정을 확인하세요.
                   </div>
                 )}
