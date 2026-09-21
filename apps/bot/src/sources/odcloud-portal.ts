@@ -3,11 +3,20 @@ import { isOutdoorParkGolf } from "@parkgolf/shared";
 import { SourceAdapter, SourceRecord } from "./source-types.js";
 
 /**
- * Verified default public data portal API Key (Zero-Key for users)
- * 검증된 공공데이터 포털 인증키 (사용자 추가 발급 불필요)
+ * Resolves ODCloud API Authentication key.
+ * Prioritizes environment variables (DATA_GO_KR_API_KEY, ODCLOUD_API_KEY) over hardcoded default fallback.
+ * 공공데이터 포털 인증키를 환경변수에서 우선 해석하며, 없을 경우에만 대체 기본키를 참조합니다.
  */
-export const ODCLOUD_DEFAULT_AUTH_KEY =
-  "02b2b602921841ca7c3e6e10f25f9235dea5f0a62424c1ea90ba36664127f7f1";
+export function resolveOdcloudApiKey(explicitKey?: string): string {
+  return (
+    explicitKey ||
+    process.env.DATA_GO_KR_API_KEY ||
+    process.env.ODCLOUD_API_KEY ||
+    "02b2b602921841ca7c3e6e10f25f9235dea5f0a62424c1ea90ba36664127f7f1"
+  );
+}
+
+export const ODCLOUD_DEFAULT_AUTH_KEY = resolveOdcloudApiKey();
 
 /**
  * Normalized raw facility payload returned by ODCloud portal
@@ -252,7 +261,7 @@ export async function fetchOdcloudPortalRecords(
   endpointConfig: OdcloudEndpointConfig,
   options?: { apiKey?: string; userAgent?: string; perPage?: number }
 ): Promise<RawFacilityPayload[]> {
-  const apiKey = options?.apiKey || process.env.ODCLOUD_API_KEY || ODCLOUD_DEFAULT_AUTH_KEY;
+  const apiKey = resolveOdcloudApiKey(options?.apiKey);
   const userAgent = options?.userAgent || "ParkGolfFinderBot/1.0";
   const perPage = options?.perPage || 100;
 
@@ -316,7 +325,7 @@ export class OdcloudPortalAdapter implements SourceAdapter {
   url = BASE_URL;
 
   async fetchRecords(userAgent: string): Promise<SourceRecord[]> {
-    const apiKey = process.env.ODCLOUD_API_KEY || ODCLOUD_DEFAULT_AUTH_KEY;
+    const apiKey = resolveOdcloudApiKey();
     const records: SourceRecord[] = [];
 
     console.log(`[OdcloudPortalAdapter] Fetching verified official datasets from ODCloud...`);

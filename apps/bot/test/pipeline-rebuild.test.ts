@@ -305,14 +305,14 @@ describe("Pipeline Rebuild: Clean Production Promotion", () => {
           province: "경기",
           district: "양평군",
           regionKey: "capital",
-          operatorName: "양평군청",
-          phone: "031-770-0000",
-          lat: 37.49,
-          lng: 127.50,
-          rawText: "양평 파크골프장 36홀",
-          sourceUrl: "https://example.com/yp",
-          reservations: [
-            {
+        operatorName: "양평군청",
+        phone: "031-770-0000",
+        lat: 37.49,
+        lng: 127.50,
+        rawText: JSON.stringify({ name: "양평 파크골프장", fee: "무료 이용" }),
+        sourceUrl: "https://example.com/yp",
+        reservations: [
+          {
               methodType: "phone",
               methodText: "전화 예약 031-770-0000",
               priority: 1,
@@ -338,8 +338,11 @@ describe("Pipeline Rebuild: Clean Production Promotion", () => {
     expect(facilityUpsertCall.create.status).toBe("active");
     expect(facilityUpsertCall.create.facilityType).toBe("outdoor");
 
-    // Pricing upsert
+    // Pricing upsert - verified pricing present in rawText
     expect(prisma.facilityPricing.upsert).toHaveBeenCalledTimes(1);
+    const pricingCall = (prisma.facilityPricing.upsert as any).mock.calls[0][0];
+    expect(pricingCall.create.baseFeeText).toBe("무료 이용");
+    expect(pricingCall.create.feeType).toBe("free");
 
     // ReservationInfo and ReservationMethod upsert
     expect(prisma.reservationInfo.upsert).toHaveBeenCalledTimes(1);

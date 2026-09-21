@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { SourceAdapter, SourceRecord } from "./source-types.js";
 import { SourceKind } from "@parkgolf/shared";
+import { resolveOdcloudApiKey } from "./odcloud-portal.js";
 
 export interface PortalFieldMapping {
   name: string;              // Facility name / 시설명
@@ -255,11 +256,15 @@ export class PublicPortalAdapter implements SourceAdapter {
   async fetchRecords(userAgent: string): Promise<SourceRecord[]> {
     // 1. Resolve API authentication key from environment or defaults
     // 1. 환경변수 또는 사전 설정된 인증키를 획득합니다.
-    let apiKey = this.config.defaultAuthKey || "";
+    let apiKey = "";
     if (this.config.authKeyEnvVar && process.env[this.config.authKeyEnvVar]) {
       apiKey = process.env[this.config.authKeyEnvVar]!;
     } else if (process.env.PORTAL_API_KEY) {
       apiKey = process.env.PORTAL_API_KEY;
+    } else if (this.config.url.includes("odcloud.kr")) {
+      apiKey = resolveOdcloudApiKey(this.config.defaultAuthKey);
+    } else {
+      apiKey = this.config.defaultAuthKey || "";
     }
 
     const records: SourceRecord[] = [];

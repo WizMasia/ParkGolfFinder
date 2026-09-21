@@ -1,5 +1,6 @@
 import { prisma } from "@parkgolf/db";
 import { isOutdoorParkGolf } from "@parkgolf/shared";
+import { getFallbackCoords } from "../classification/geocoder.js";
 
 /**
  * Promotes confirmed staging records into the production tables.
@@ -70,6 +71,12 @@ export async function runPromotePipeline(runId: string): Promise<void> {
 
       const targetFacilityId = existingFacility ? existingFacility.id : record.id;
 
+      // Determine valid coordinates from record, or fallback by parsed province, rather than static 37.5, 126.9
+      const coords =
+        record.lat !== null && record.lng !== null && record.lat !== 0 && record.lng !== 0
+          ? { lat: record.lat, lng: record.lng }
+          : getFallbackCoords(record.address || record.province || "");
+
       const facility = await prisma.facility.upsert({
         where: {
           // Identify uniquely by name and address
@@ -83,10 +90,10 @@ export async function runPromotePipeline(runId: string): Promise<void> {
           district: record.district,
           regionKey: record.regionKey || "capital",
           facilityType,
-          operatorName: record.operatorName || "기타",
+          operatorName: record.operatorName && record.operatorName !== "기타" ? record.operatorName : (existingFacility?.operatorName || null),
           phone: record.phone,
-          lat: record.lat || 37.5,
-          lng: record.lng || 126.9,
+          lat: coords.lat,
+          lng: coords.lng,
           kakaoPlaceId: record.kakaoPlaceId,
           naverPlaceId: record.naverPlaceId,
           mapSearchQuery: record.mapSearchQuery,
@@ -104,10 +111,10 @@ export async function runPromotePipeline(runId: string): Promise<void> {
           facilityType,
           status: "active",
           ownership: "public",
-          operatorName: record.operatorName || "기타",
+          operatorName: record.operatorName || "운영 주체 확인 필요",
           phone: record.phone,
-          lat: record.lat || 37.5,
-          lng: record.lng || 126.9,
+          lat: coords.lat,
+          lng: coords.lng,
           kakaoPlaceId: record.kakaoPlaceId,
           naverPlaceId: record.naverPlaceId,
           mapSearchQuery: record.mapSearchQuery,
@@ -117,20 +124,27 @@ export async function runPromotePipeline(runId: string): Promise<void> {
         },
       });
 
-      // 3. Upsert Facility pricing details
-      // 3. 시설 요금 상세 정보를 upsert합니다.
-      await prisma.facilityPricing.upsert({
-        where: { facilityId: facility.id },
-        update: {
-          baseFeeText: "무료 (추정) / Free (Est.)",
-          feeType: "free",
-        },
-        create: {
-          facilityId: facility.id,
-          baseFeeText: "무료 (추정) / Free (Est.)",
-          feeType: "free",
-        },
-      });
+      // 3. Upsert Facility pricing details only when genuine pricing is present or marked in rawRecord
+      // 요금 정보가 확인되지 않은 경우 허위 "무료(추정)"을 강제 삽입하지 않고, 미검증 상태로 유지합니다.
+      const rawParsed = record.rawText ? (() => { try { return JSON.parse(record.rawText); } catch { return null; } })() : null;
+      const extractedFee = rawParsed?.fee || rawParsed?.pricing || rawParsed?.feeText || null;
+
+      if (extractedFee && typeof extractedFee === "string" && extractedFee.trim().length > 0) {
+        const feeText = extractedFee.trim();
+        const feeType = feeText.includes("무료") ? "free" : feeText.includes("부분") ? "partial" : "paid";
+        await prisma.facilityPricing.upsert({
+          where: { facilityId: facility.id },
+          update: {
+            baseFeeText: feeText,
+            feeType,
+          },
+          create: {
+            facilityId: facility.id,
+            baseFeeText: feeText,
+            feeType,
+          },
+        });
+      }
 
       // 4. Update reservation methods summary
       // 4. 예약 방식 요약 정보를 가공합니다.

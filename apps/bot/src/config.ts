@@ -8,6 +8,9 @@ export interface BotConfig {
   retentionDays: number;
   concurrency: number;
   userAgent: string;
+  odcloudApiKey?: string;
+  jusoConfirmKey?: string;
+  kakaoRestApiKey?: string;
 }
 
 /**
@@ -33,12 +36,19 @@ export function parseBotConfig(env: Record<string, string | undefined>): BotConf
     throw new Error("BOT_CONCURRENCY must be a positive number. / BOT_CONCURRENCY는 양수여야 합니다.");
   }
 
+  const odcloudApiKey = env.DATA_GO_KR_API_KEY || env.ODCLOUD_API_KEY || undefined;
+  const jusoConfirmKey = env.JUSO_COORD_CONFIRM_KEY || env.JUSO_CONFIRM_KEY || undefined;
+  const kakaoRestApiKey = env.KAKAO_REST_API_KEY || env.NEXT_PUBLIC_KAKAO_MAP_API_KEY || undefined;
+
   return {
     databaseUrl,
     scope,
     retentionDays,
     concurrency,
     userAgent,
+    odcloudApiKey,
+    jusoConfirmKey,
+    kakaoRestApiKey,
   };
 }
 

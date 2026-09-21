@@ -128,7 +128,7 @@ export class DjpkgolfAdapter implements SourceAdapter {
             rawText,
             extractedName: name,
             extractedAddress: address,
-            extractedOperatorName: "대전광역시파크골프협회",
+            extractedOperatorName: null,
             extractedPhone: null,
             extractedReservationText: capacity ? `규모: ${capacity}` : null,
           });

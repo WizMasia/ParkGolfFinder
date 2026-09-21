@@ -12,3 +12,4 @@ export * from "./domain";
 export * from "./regions";
 export * from "./distance";
 export * from "./classification";
+export * from "./reservation-portals";
